@@ -1,0 +1,13 @@
+Author: Arpan Man Sainju
+Course: CS503
+Email: asainju@crimson.ua.edu
+
+Developement : Python3
+Lexical Analyzer Module Submission
+
+How to run?
+$scanner <file_name>
+
+	<file_name> : name of the file that contains the source code of my new programming language.
+
+

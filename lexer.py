@@ -190,6 +190,8 @@ class lexeme:
     def __init__(self,lex_type,lex_val):
         self.lex_type = lex_type
         self.lex_val = lex_val
+        self.left = None
+        self.right = None
         
     def getLextype(self):
         return self.lex_type

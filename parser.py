@@ -45,17 +45,17 @@ class cparser:
             sys.exit()
 
     def program(self):
-        self.statement()
+        self.getStatement()
         if (self.statementPending()):
             self.program()
 
-    def statement(self):
+    def getStatement(self):
         if (self.ifStatementPending()):
-            return ifStatement()
+            return getIfStatement()
         elif (self.whileStatementPending()):
-            return whileStatement()
+            return getwhileStatement()
         elif (self.functionDefPending()):
-            return functionDef()
+            return getFunctionDef()
         elif (self.idPending()):
             idname = self.match(types.ID)
             self.match(types.ASSIGN)
@@ -70,12 +70,194 @@ class cparser:
                 self.match(type.CBRACE)
                 #join and return
             elif (self.expressionPending()):
-                expr = expression()
+                expr = getExpression()
                 #join and returnz
 
+    def getIfStatement(self):
+        self.match(types.IF)
+        self.match(types.OPAREN)
+        expr = self.getExpression()
+        self.match(types.CPAREN)
+        block = self.getBlock()
+        ifstatement = lexer.lexeme(None,None)
+        ifstatement.left = expr
+        ifstatement.right = block
+        if (self.elsePending()):
+            self.match(types.ELSE)
+            if(self.ifStatementPending()):
+                elifcase = self.getIfStatement()
+                return self.cons(LONGIFELSECASE,ifstatement,elifcase)
+            elif (self.blockPending()):
+                elsecase = self.getBlock()
+                return self.cons(IFELSECASE,ifstatement,elsecase)
+        return self.cons(IFCASE,ifstatement)
+
+    def getWhileStatement(self):
+        self.match(types.WHILE)
+        self.match(types.OPAREN)
+        expr = self.getExpression()
+        self.match(types.CBRACE)
+        block = self.getBlock()
+        return self.cons(WHILELOOP,expr,body)
+
+    def getFunctionDef(self):
+        self.match(types.DEFINE)
+        functionName = self.match(types.ID)
+        self.match(types.OPAREN)
+        optParameterList = self.getOptIdentifierList()
+        self.match(types.CPAREN)
+        block = self.getBlock()
+        #think to return the combination of function name
+        #argumentlist
+        #and body
+
+    def getOptIdentifierList(self):
+        if(self.identifierListPending()):
+            return self.getIdentifierList()
+        elif (self.check(types.CPAREN)):
+            return None
+
+    def getIdentifierList(self):
+        a = self.match(types.ID)
+        if (self.check(types.COMMA)):
+            self.advance()
+            b = self.getIdentifierList()
+            #return combinationa of a and b
+        else:
+            return a
 
 
-        
+    def getExpression(self):
+        a = self.getPrimary()
+        if(self.opPending()):
+            b = self.getOP()
+            c = getExpression()
+            b.left = a
+            a.left = c
+            return b
+        else:
+            return a
+
+    def getPrimary(self):
+        if (self.idPending()):
+            idname = self.match(types.ID)
+            if (self.check(types.OPAREN)):
+                self.match(types.OPAREN)
+                optArgList = self.getArgumentList()
+                self.match(types.CPAREN)
+                #return something
+            elif (self.check(types.OSBRACE)):
+                self.match(types.OSBRACE)
+                expr = getExpression()
+                self.match(types.CSBRACE)
+                #return something
+            else:
+                return idname
+        elif (self.stringPending()):
+            return self.match(types.STRING)
+        elif (self.integerPending()):
+            return self.match(types.INTEGER)
+        elif (self.lambdaPending()):
+            lam = self.match(types.LAMBDA)
+            self.match(types.OPAREN)
+            optIdList = self.getOptIdentifierList()
+            self.match(types.CPAREN)
+            self.match(types.COLON)
+            self.match(types.OPAREN)
+            expr = self.getExpression()
+            self.match(types.CPAREN) # i think argument list is not required here not added argument list 
+            #return combination of idlist and body
+        elif (self.check(types.MINUS)):
+            sign = self.match(types.MINUS)
+            value = self.getPrimary()
+            #do some thing
+
+
+
+    def getOptArrayItems(self):
+        if (self.arrayItemsPending()):
+            return self.getArrayItems()
+        elif (self.check(types.CSBRACE)):
+            return None
+
+    def getOptDictItems(self):
+        if (self.dictItemsPending()):
+            return self.getDictItems()
+        elif (self.check(types.CBRACE)):
+            return None
+
+    def getArrayItems(self):
+        a = self.getPrimary()
+        b = None
+        if (self.check(types.COMMA)):
+            self.advance()
+            b = self.getArrayItems()
+        return self.cons(ARRAYITEMS,a,b)
+
+    def getDictItems(self):
+        a = self.getPrimary()
+        col = self.match(types.COLON)    
+        b = self.getPrimary()
+        c = lexer.lexeme(None,None)
+        c.left = a
+        c.right = b
+        if (self.check(types.COMMA)):
+            self.advance()
+            d = self.getDictItems()
+        return self.cons(DICTITEMS,c,d)
+
+    def opPending(self):
+        return self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) or self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO) or self.check(types.OR) or self.check(types.AND)
+
+
+    def elsePending(self):
+        return self.check(types.ELSE)
+
+    def blockPending(self):
+        return self.check(types.OBRACE)
+
+    def dictItemsPending():
+        return self.primaryPending()
+
+
     def statementPending(self):
         return self.ifStatementPending() or self.whileStatementPending() or self.functionDefPending() or self.idPending)
+
+    def arrayItemsPending(self):
+        return self.primaryPending()
+
+    def idPending():
+        return self.check(types.ID)
+
+    def ifStatementPending(self):
+        return self.check(types.IF)
+
+    def whileStatementPending(self):
+        return self.check(types.WHILE)
+
+    def functionDefPending(self):
+        return self.check(types.DEFINE)
+
+    def expressionPending(self):
+        return self.primaryPending()
+
+    def primaryPending(self):
+        return self.idPending() or self.stringPending() or self.integerPending() or self.lambdaPending() or self.minusPending()
+
+    def stringPending(self):
+        return self.check(types.STRING)
+
+    def integerPending(self):
+        return self.check(types.INTEGER)
+
+    def lambdaPending(self):
+        return self.check(types.LAMBDA)
+
+    def minusPending(self):
+        return self.check(types.MINUS)
+
+
+
+
+
 

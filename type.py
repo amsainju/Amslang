@@ -37,3 +37,6 @@ class types:
 	ID = "ID"
 	STRING = "STRING"
 	BADCHARACTER = "BADCHARACTER" 
+	#new compound types
+	ARRAY = "ARRAY"
+	DICTIONARY = "DICTIONARY"

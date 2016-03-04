@@ -46,6 +46,7 @@ class cparser:
 
     def program(self):
         self.getStatement()
+        self.match(types.NEWLINE)       #think about keeping this or replacing with semi-colon
         if (self.statementPending()):
             self.program()
 
@@ -61,45 +62,58 @@ class cparser:
             self.match(types.ASSIGN)
             if(self.check(types.OSBRACE)): #Array Defination
                 self.match(types.OSBRACE)
+                newarray = lexer.lexeme(types.ARRAY,None)
                 optArrayItems = self.getOptArrayItems()
                 self.match(types.CSBRACE)
-                #DO SOME KIND OF COMBINATION BETWEEN ID NAME AND OPTARRAYITEMS
-            elif (self.check(types.OBRACE)):
+                newarray.left = optArrayItems
+                idname.left = newarray
+                return idname
+             elif (self.check(types.OBRACE)): #Dictionary defination
                 self.match(types.OBRACE)
                 optDictItems = self.getOptDictItems()
                 self.match(type.CBRACE)
-                #join and return
-            elif (self.expressionPending()):
+                newdict = lexer.lexeme(types.DICTIONARY,None)
+                newdict.left = optDictItems
+                idname.left = newdict
+                return idname
+            elif (self.expressionPending()):   #variable decleration and defination and update
                 expr = getExpression()
-                #join and returnz
+                idname.left =expr
+                return idname
 
     def getIfStatement(self):
-        self.match(types.IF)
+        ifstatement = self.match(types.IF)
         self.match(types.OPAREN)
         expr = self.getExpression()
         self.match(types.CPAREN)
         block = self.getBlock()
-        ifstatement = lexer.lexeme(None,None)
-        ifstatement.left = expr
-        ifstatement.right = block
+        ifstatement.left = expr  
+        expr.left = block
         if (self.elsePending()):
-            self.match(types.ELSE)
+            elsecase = self.match(types.ELSE)
             if(self.ifStatementPending()):
-                elifcase = self.getIfStatement()
-                return self.cons(LONGIFELSECASE,ifstatement,elifcase)
+                elsecase.left = self.getIfStatement()
+                ifstatement.right = elsecase
+                return ifstatement
             elif (self.blockPending()):
-                elsecase = self.getBlock()
-                return self.cons(IFELSECASE,ifstatement,elsecase)
-        return self.cons(IFCASE,ifstatement)
+                elseblock = self.getBlock()
+                elsecase.left = elseblock
+                return ifstatement.right = elsecase
+                return ifstatement
+        ifstatement.right = None
+        return ifstatement
 
     def getWhileStatement(self):
-        self.match(types.WHILE)
+        whilestatement = self.match(types.WHILE)
         self.match(types.OPAREN)
         expr = self.getExpression()
         self.match(types.CBRACE)
         block = self.getBlock()
-        return self.cons(WHILELOOP,expr,body)
-
+        whilestatement.left = expr
+        expr.left = block
+        return whilestatement
+ 
+#start here : 2016/3/4
     def getFunctionDef(self):
         self.match(types.DEFINE)
         functionName = self.match(types.ID)
@@ -171,6 +185,24 @@ class cparser:
             sign = self.match(types.MINUS)
             value = self.getPrimary()
             #do some thing
+
+    def getBlock(self):
+        self.match(types.OBRACE)
+        statementlist = None
+        if (self.statementPending()):
+            statementlist = self.getStatementList()
+        self.match(types.CBRACE)
+        return statementlist
+
+    def getStatementList(self):
+        statement = self.getStatement()
+        self.match(types.NEWLINE)
+        if(self.statementPending()):
+            statement2 = self.getStatementList()
+            return #something
+        else:
+            return statement
+
 
 
 

@@ -1,0 +1,12 @@
+##multi-lined
+comment
+##
+define square(value)
+{
+	value*value
+}
+x = 8
+y = 5
+print(square(x) + 2*x*y + square(y))
+
+

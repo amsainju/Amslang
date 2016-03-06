@@ -142,7 +142,7 @@ class lexer:
     def lexWord(self,ch):
         buffer = ""
         notvalidcharacters = {"",'\t','\n',' ',';',',','(',')','%','[',']','{','}','.','-','+','*','&','^','\\','<','>','?','=','|','#','~','`',':','!','@','&'}
-        keywords = {'define','lambda','print','else','if','while','append','read'}
+        keywords = {'define','lambda','print','else','if','while','append','read','find'}
         while(ch not in notvalidcharacters):
             buffer += ch
             ch = self.getCharacter()
@@ -165,6 +165,8 @@ class lexer:
                 return lexeme(types.APPEND,None)  
             elif (buffer.upper() == "READ"):
                 return lexeme(types.READ,None)
+            elif (buffer.upper() == "FIND"):
+                return lexeme(types.FIND,None)
             else:
                 return lexeme(types.BADCHARACTER,buffer)         
         else:
@@ -193,8 +195,20 @@ class lexeme:
         self.left = None
         self.right = None
         
+    def setleft(self,left):
+        self.left = left
+
+    def setright(self,right):
+        self.right = right
+        
     def getLextype(self):
         return self.lex_type
     
     def getLexval(self):
         return self.lex_val
+
+    def getleft(self):
+        return self.left
+    
+    def getright(self):
+        return self.right

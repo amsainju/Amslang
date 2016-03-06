@@ -1,9 +1,9 @@
 default: 
-	./scanner test1.txt
+	./recognizer test1.txt
 
 run: 
-	./scanner test1.txt
-	./scanner test2.txt
-	./scanner test3.txt
-	./scanner test4.txt
+	./recognizer test1.txt
+	./recognizer test2.txt
+	./recognizer test3.txt
+	./recognizer test4.txt
 

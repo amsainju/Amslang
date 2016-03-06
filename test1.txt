@@ -4,7 +4,7 @@
   ##
 x = 345     	# the variable x is declared and initialized to value 3
 y = 7
-e = x*x + 2*x*y + y*y
+e = x{*x + 2*x*y + y*y
 f = -(x+y)
 print(e)
 print(f)

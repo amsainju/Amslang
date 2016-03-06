@@ -1,0 +1,23 @@
+message = "Enter your name :"
+name = input(message)
+print("hello ", name)
+friends = []
+print ("Enter friends. Press q and enter to end. \n")
+friend = input("Enter new friend [q to quit]:")
+while(friend != "q")
+{
+	friends.append(friend)
+	print(friend, " added to your friend list.")
+}
+if (friends[1] == "Susan")
+{
+	friends[1] = "Harry"
+}
+
+i=0
+while(i<friends.length())
+{
+  print (i, ". ", friends[i])
+  i = i + 1  
+}
+

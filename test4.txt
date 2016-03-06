@@ -1,0 +1,21 @@
+lfun = lambda (x,y) : (x+y)
+sum = lfun(2,3)
+print (sum)
+
+animals = {"monkey" : 1, "tuna" : 2, "elephant" : 3}
+
+birds = {}
+brids["Dhaphe"] = "A"
+birds["Chichilkote"] = "B"
+birds["kalij"] = "C"
+
+print(birds["kalij"])
+
+if(birds.find("Dhaphe"))
+{
+	print(birds["Dhaphe"])
+}
+
+message= "check error"
+t=4;
+print(t)

@@ -4,7 +4,6 @@
 #             Class lexeme stores the type of the token and/or value associated with the token. 
 from type import types
 class lexer:
-    'Common base class for all employees'
     lineNumber = 1
     
     def __init__(self,source):
@@ -21,9 +20,9 @@ class lexer:
         ch = self.getCharacter()
         if (ch == '\n'):
             lexer.lineNumber = lexer.lineNumber + 1
-            self.pushbackOneCharacter(ch)
+            self.skipwhitespaces()
         else:
-            while (ch== " " or ch=="#" or  ch == "\t"):
+            while (ch== " " or ch=="#" or  ch == "\t" or ch == "\n"):
                 if(ch == "#"):                                     
                     ch = self.getCharacter()
                     self.updateLineNumber(ch) 
@@ -86,6 +85,8 @@ class lexer:
             return lexeme(types.COLON,None);
         if(ch == '.'):
             return lexeme(types.DOT,None);
+        if(ch == ';'):
+            return lexeme(types.SEMI,None);
         #END SINGLE CHARACTER TOKEN
         
         #MULTI CHARACTER TOKENS START

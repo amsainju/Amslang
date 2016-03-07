@@ -41,74 +41,97 @@ class cparser:
 
     def matchNoAdvance(self,ltype):
         if not (self.check(ltype)):
-            print("Error in Line Number ",self.oLexer.lineNumber)
+            print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype(), "Got Value: ",self.pending.getLexval())
             sys.exit()
 
     def program(self):
-        if(self.check(types.NEWLINE)):
-            self.advance()
-            self.program()
         self.getStatement()
-        if not (self.check(types.END_OF_FILE)):
-            self.match(types.NEWLINE)       #think about keeping this or replacing with semi-colon
+        #if not (self.check(types.END_OF_FILE)):
+        #    self.match(types.SEMI)       #think about keeping this or replacing with semi-colon
         if (self.statementPending()):
             self.program()
 
     def getStatement(self):
         if (self.ifStatementPending()):
-            return getIfStatement()
+            return self.getIfStatement()
         elif (self.whileStatementPending()):
-            return getwhileStatement()
+            return self.getWhileStatement()
         elif (self.functionDefPending()):
             return self.getFunctionDef()
-        elif (self.idPending()):
+        if(self.idPending()):
             idname = self.match(types.ID)
-            self.match(types.ASSIGN)
-            if(self.check(types.OSQBRACE)): #Array Defination
-                self.match(types.OSQBRACE)
-                newarray = lexer.lexeme(types.ARRAY,None)
-                optArrayItems = self.getOptArrayItems()
-                self.match(types.CSQBRACE)
-                newarray.left = optArrayItems
-                idname.left = newarray
-                return idname
-            elif (self.check(types.OBRACE)): #Dictionary defination
-                self.match(types.OBRACE)
-                optDictItems = self.getOptDictItems()
-                self.match(type.CBRACE)
-                newdict = lexer.lexeme(types.DICTIONARY,None)
-                newdict.left = optDictItems
-                idname.left = newdict
-                return idname
-            elif (self.expressionPending()):   #variable decleration and defination and update
-                expr = self.getExpression()
-                idname.left = expr
-                return idname
+            if (self.check(types.ASSIGN)):
+                self.match(types.ASSIGN)
+                if(self.check(types.OSQBRACE)): #Array Defination
+                    self.match(types.OSQBRACE)
+                    newarray = lexer.lexeme(types.ARRAY,None)
+                    optArrayItems = self.getOptArrayItems()
+                    self.match(types.CSQBRACE)
+                    newarray.left = optArrayItems
+                    idname.left = newarray
+                    self.match(types.SEMI)
+                    return idname
+                elif (self.check(types.OBRACE)): #Dictionary defination
+                    self.match(types.OBRACE)
+                    optDictItems = self.getOptDictItems()
+                    self.match(types.CBRACE)
+                    newdict = lexer.lexeme(types.DICTIONARY,None)
+                    newdict.left = optDictItems
+                    idname.left = newdict
+                    self.match(types.SEMI)
+                    return idname
+                elif (self.expressionPending()):   #variable decleration and defination and update
+                    expr = self.getExpression(None)
+                    idname.left = expr
+                    self.match(types.SEMI)
+                    return idname
             elif (self.check(types.DOT)):
                 self.match(types.DOT)
-                if(self.check(types.FIND)):
+                #if(self.check(types.FIND)):
+                 #   self.match(types.FIND)
+                 #   self.match(types.OPAREN)
+                  #  findexpression = self.getExpression(None)
+                   # self.match(types.CPAREN)
+                   # self.match(types.SEMI)
+                   # return self.cons(types.DICTIONARYSEARCH,idname,findexpression)
+                if(self.check(types.APPEND)):                             # do I really need append?
+                    self.match(types.APPEND)
                     self.match(types.OPAREN)
-                    findexpression = self.getExpression()
+                    findexpression = self.getExpression(None)
                     self.match(types.CPAREN)
-                    return self.cons(types.DICTIONARYSEARCH,idname,findexpression)
-                if(self.check(types.APPEND)):
-                    self.match(types.OPAREN)
-                    findexpression = self.getExpression()
-                    self.match(types.CPAREN)
+                    self.match(types.SEMI)
                     return self.cons(types.ARRAYAPPEND,idname,findexpression)
-            return idname
+            elif (self.check(types.OSQBRACE)):    #Array or Dictionary update
+                self.match(types.OSQBRACE);
+                expr = self.getExpression(None)
+                self.match(types.CSQBRACE)
+                self.match(types.ASSIGN)
+                expr2= self.getExpression(None)
+                self.match(types.SEMI)
+                return self.cons(types.COLLECTIONUPDATE,idname,self.cons(types.JOIN,expr, self.cons(types.JOIN, expr2,None)))
+
+            else:
+                expr =  self.getExpression(idname)
+                self.match(types.SEMI)
+                return expr
         elif (self.check(types.PRINT)):
             printexpr = self.match(types.PRINT)
             self.match(types.OPAREN)
-            optArglist = getOptArgumentList()
+            optArglist = self.getOptArgumentList()
+            self.match(types.CPAREN)
             printexpr.left = optArglist
+            self.match(types.SEMI)
             return printexpr
+        else:
+            expr = self.getExpression(None)
+            self.match(types.SEMI)
+            return expr
 
 
     def getIfStatement(self):
         ifstatement = self.match(types.IF)
         self.match(types.OPAREN)
-        expr = self.getExpression()
+        expr = self.getExpression(None)
         self.match(types.CPAREN)
         self.match(types.OBRACE)
         block = self.getBlock()
@@ -134,7 +157,8 @@ class cparser:
     def getWhileStatement(self):
         whilestatement = self.match(types.WHILE)
         self.match(types.OPAREN)
-        expr = self.getExpression()
+        expr = self.getExpression(None)
+        print("Iam here")
         self.match(types.CPAREN)
         self.match(types.OBRACE)
         block = self.getBlock()
@@ -184,7 +208,7 @@ class cparser:
             return lexer.lexeme(types.ARGUMENTLIST,None)
 
     def getArgumentList(self):
-        a = self.getExpression()
+        a = self.getExpression(None)
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArgumentList()
@@ -193,11 +217,15 @@ class cparser:
         return self.cons(types.ARGUMENTLIST,a,b)
 
 
-    def getExpression(self):
-        a = self.getPrimary()
+    def getExpression(self,first):
+        print(self.pending.getLextype())
+        if(first):
+            a = first
+        else:
+            a = self.getPrimary()
         if(self.opPending()):
             b = self.getOP()
-            c = self.getExpression()
+            c = self.getExpression(None)
             b.left = a
             a.left = c
             return b
@@ -214,9 +242,9 @@ class cparser:
                 return self.cons(types.FUNCTIONCALL,idname,optArgList)
             elif (self.check(types.OSQBRACE)):
                 self.match(types.OSQBRACE)
-                expr = getExpression()
+                expr = self.getExpression(None)
                 self.match(types.CSQBRACE)
-                return self.cons(type.COLLECTIONACCESS,idname,expr)
+                return self.cons(types.COLLECTIONACCESS,idname,expr)
             else:
                 return idname
         elif (self.stringPending()):
@@ -232,7 +260,7 @@ class cparser:
             return sign
         elif (self.check(types.OPAREN)):
             self.match(types.OPAREN)
-            expr = self.getExpression()
+            expr = self.getExpression(None)
             self.match(types.CPAREN)
             return expr
 
@@ -243,7 +271,7 @@ class cparser:
         self.match(types.CPAREN)
         self.match(types.COLON)
         self.match(types.OPAREN)
-        expr = self.getExpression()
+        expr = self.getExpression(None)
         self.match(types.CPAREN)
         if (self.check(types.OPAREN)):
             self.match(types.OPAREN)
@@ -255,12 +283,12 @@ class cparser:
 
     def getBlock(self):
         statement = self.getStatement()
-        self.match(types.NEWLINE)
+        #self.match(types.SEMI)
         if (self.statementPending()):
             statement2 = self.getBlock()
             return self.cons(types.STATEMENT,statement,statement2)
         else:
-            return self.cons(types.STATEMENT,statment,None)
+            return self.cons(types.STATEMENT,statement,None)
 
 
     def getOptArrayItems(self):
@@ -317,10 +345,15 @@ class cparser:
             return self.match(types.LESSTHAN)
         elif(self.check(types.LESSTHANEQUALTO)):
             return self.match(types.LESSTHANEQUALTO)
+        elif(self.check(types.EQUALTO)):
+            return self.match(types.EQUALTO)
+        elif(self.check(types.NOTEQUAL)):
+            return self.match(types.NOTEQUAL)
         elif(self.check(types.OR)):
             return self.match(types.OR)
         elif(self.check(types.AND)):
             return self.match(types.AND)
+
 
     def cons(self,ltype,leftlexeme,rightlexeme):
         intermediate = lexer.lexeme(ltype,None)
@@ -330,7 +363,7 @@ class cparser:
 
 
     def opPending(self):
-        return self.check(types.PLUS) or self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) or self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO) or self.check(types.OR) or self.check(types.AND)
+        return self.check(types.PLUS) or self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) or self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO)  or self.check(types.NOTEQUAL) or self.check(types.OR) or self.check(types.AND)
 
 
     def elsePending(self):
@@ -339,12 +372,12 @@ class cparser:
     def blockPending(self):
         return self.check(types.OBRACE)
 
-    def dictItemsPending():
+    def dictItemsPending(self):
         return self.primaryPending()
 
 
     def statementPending(self):
-        return self.ifStatementPending() or self.whileStatementPending() or self.functionDefPending() or self.idPending()
+        return self.ifStatementPending() or self.whileStatementPending() or self.functionDefPending() or self.idPending() or self.check(types.PRINT)
 
     def arrayItemsPending(self):
         return self.primaryPending()

@@ -3,10 +3,10 @@ comment
 ##
 define square(value)
 {
-	value*value
+	2*value;
 }
-x = 8
-y = 5
-print(square(x) + 2*x*y + square(y))
+x = 8;
+y = 5;
+print(square(x) + 2*x*y + square(y));
 
 

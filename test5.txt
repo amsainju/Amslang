@@ -1,0 +1,59 @@
+x = 5;
+y = "hello world!";
+z = 15;
+t=20;
+p =30;
+arrayx = [1,2,3,"program",5];
+arrayy = [ ];
+dictx = {1:"one",2:"two",3:"three"};
+dicty = {};
+dictz = {   };
+define square(x)
+{
+	x*x;
+}
+define complexfunc(x,y,z,f)
+{
+	a = x*y;
+	b = x+square(x);
+	c = x+y;
+	d = f(a,b,c);
+	a+b+c+d+3;
+}
+if(x == 5 and y != 3)
+{
+	print(arrayx[0]);
+	dicty["firtvalue"] = arrayx[0]+arrayx[1]+55;
+	dicty["secondvalue"] = dicty["firstvalue"] + 20 + square(p);
+	arrayy[0] = 10;
+	arrayy[1] = 20;
+}
+else if (x > 5 or y < 100 or z == 15)
+{
+	print(z);
+}
+else if ((x==5 or z==10) and (t==20 and p==30))
+{
+	print("t+p =",t+p);
+}
+else
+{
+	print("did not satisfied any condition");
+}
+while(t>0 and p<=50)
+{
+	print("t = ",t," p = ", p);
+	value = complexfun(1,2*9*4+32,square(3),lambda(x,y,z):(x*y*z));
+	print(value);
+	t =t -1;
+	p = p+1;
+}
+s = lambda(x,y):(x+y)(2,3);
+print(s);
+expr = -(3+4)+7*80+-x*lambda(x,y):(x+y)(2,3)+(622+322+788)+arrayy[1];
+
+operatorcheck = 2+3-4/3%5;
+check = (x>3 or y>=5) and ((y< 6 or y<=7) and (p != 3 or t == 9));
+
+
+

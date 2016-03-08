@@ -14,18 +14,7 @@ class cparser:
         self.pending = self.oLexer.lex()
         self.program()
         self.match(types.END_OF_FILE)    
-        while(self.pending.getLextype()!= types.END_OF_FILE):
-            if(self.pending.getLextype() != types.BADCHARACTER):
-               print(self.pending.getLextype(), end= ' ')
-               if(self.pending.getLexval() != None):
-                   print(self.pending.getLexval())
-               else:
-                   print()
-            else:
-               print("Error in Line Number ", lexer.lexer.lineNumber,". Unknown character ","'",self.pending.getLexval(),"'.")
-               break
-            self.pending = self.oLexer.lex()
-        print("End of Program")
+        #print("End of Program")
 
     def check(self,ltype):
         return self.pending.getLextype() == ltype
@@ -80,27 +69,20 @@ class cparser:
                     idname.left = newdict
                     self.match(types.SEMI)
                     return idname
+                elif (self.check(types.INPUT)):
+                    inputcommand = self.match(types.INPUT)
+                    self.match(types.OPAREN)
+                    msg = self.getPrimary()
+                    self.match(types.CPAREN)
+                    self.match(types.SEMI)
+                    inputcommand.left = msg
+                    idname.left = inputcommand
+                    return idname
                 elif (self.expressionPending()):   #variable decleration and defination and update
                     expr = self.getExpression(None)
                     idname.left = expr
                     self.match(types.SEMI)
                     return idname
-            elif (self.check(types.DOT)):
-                self.match(types.DOT)
-                #if(self.check(types.FIND)):
-                 #   self.match(types.FIND)
-                 #   self.match(types.OPAREN)
-                  #  findexpression = self.getExpression(None)
-                   # self.match(types.CPAREN)
-                   # self.match(types.SEMI)
-                   # return self.cons(types.DICTIONARYSEARCH,idname,findexpression)
-                if(self.check(types.APPEND)):                             # do I really need append?
-                    self.match(types.APPEND)
-                    self.match(types.OPAREN)
-                    findexpression = self.getExpression(None)
-                    self.match(types.CPAREN)
-                    self.match(types.SEMI)
-                    return self.cons(types.ARRAYAPPEND,idname,findexpression)
             elif (self.check(types.OSQBRACE)):    #Array or Dictionary update
                 self.match(types.OSQBRACE);
                 expr = self.getExpression(None)
@@ -109,7 +91,6 @@ class cparser:
                 expr2= self.getExpression(None)
                 self.match(types.SEMI)
                 return self.cons(types.COLLECTIONUPDATE,idname,self.cons(types.JOIN,expr, self.cons(types.JOIN, expr2,None)))
-
             else:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
@@ -122,6 +103,7 @@ class cparser:
             printexpr.left = optArglist
             self.match(types.SEMI)
             return printexpr
+
         else:
             expr = self.getExpression(None)
             self.match(types.SEMI)
@@ -158,7 +140,6 @@ class cparser:
         whilestatement = self.match(types.WHILE)
         self.match(types.OPAREN)
         expr = self.getExpression(None)
-        print("Iam here")
         self.match(types.CPAREN)
         self.match(types.OBRACE)
         block = self.getBlock()
@@ -218,7 +199,6 @@ class cparser:
 
 
     def getExpression(self,first):
-        print(self.pending.getLextype())
         if(first):
             a = first
         else:
@@ -276,7 +256,7 @@ class cparser:
         if (self.check(types.OPAREN)):
             self.match(types.OPAREN)
             arglist = self.getArgumentList()
-            self.match(type.CPAREN)
+            self.match(types.CPAREN)
             return self.cons(types.CLOSURE,optIdList,self.cons(types.JOIN,expr,self.cons(types.JOIN,arglist,None)));
         else:
             return self.cons(types.CLOSURE,optIdList,self.cons(types.JOIN,expr,None));

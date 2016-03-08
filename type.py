@@ -39,9 +39,7 @@ class types:
 	SEMI = "SEMI" 
 	#inbuilt functions
 	PRINT = "PRINT"
-	APPEND = "APPEND"
-	READ = "READ"
-	FIND = "FIND"
+	INPUT = "INPUT"
 	#new compound types
 	ARRAY = "ARRAY"
 	DICTIONARY = "DICTIONARY"

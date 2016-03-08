@@ -143,7 +143,7 @@ class lexer:
     def lexWord(self,ch):
         buffer = ""
         notvalidcharacters = {"",'\t','\n',' ',';',',','(',')','%','[',']','{','}','.','-','+','*','&','^','\\','<','>','?','=','|','#','~','`',':','!','@','&'}
-        keywords = {'define','lambda','print','else','if','while','append','read','find'}
+        keywords = {'define','lambda','print','else','if','while','input','and','or'}
         while(ch not in notvalidcharacters):
             buffer += ch
             ch = self.getCharacter()
@@ -162,12 +162,12 @@ class lexer:
                 return lexeme(types.IF,None)
             elif (buffer.upper() == "WHILE"):
                 return lexeme(types.WHILE,None)
-            elif (buffer.upper() == "APPEND"):
-                return lexeme(types.APPEND,None)  
-            elif (buffer.upper() == "READ"):
-                return lexeme(types.READ,None)
-            elif (buffer.upper() == "FIND"):
-                return lexeme(types.FIND,None)
+            elif (buffer.upper() == "OR"):
+                return lexeme(types.OR,None)  
+            elif (buffer.upper() == "INPUT"):
+                return lexeme(types.INPUT,None)
+            elif (buffer.upper() == "AND"):
+                return lexeme(types.AND,None)
             else:
                 return lexeme(types.BADCHARACTER,buffer)         
         else:

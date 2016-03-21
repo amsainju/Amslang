@@ -5,7 +5,7 @@ friends = [];
 print ("Enter friends. Press q and enter to end. \n");
 friend = input("Enter new friend [q to quit]:");
 count  = 0;
-while(friend != "q")
+while(friend != "q" and )
 {
 	friends[count] = friend;
 	friend = input("Enter new friend [q to quit]:");

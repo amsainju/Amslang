@@ -30,15 +30,17 @@ class cparser:
 
     def matchNoAdvance(self,ltype):
         if not (self.check(ltype)):
-            print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype(), "Got Value: ",self.pending.getLexval())
+            #print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype(), "Got Value: ",self.pending.getLexval())
+            print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype())
             sys.exit()
 
     def program(self):
-        self.getStatement()
-        #if not (self.check(types.END_OF_FILE)):
-        #    self.match(types.SEMI)       #think about keeping this or replacing with semi-colon
+        stmt = self.getStatement()
         if (self.statementPending()):
-            self.program()
+            stmt2 = self.program()
+            return self.cons(types.JOIN,stmt,stmt2)
+        else:
+            return stmt
 
     def getStatement(self):
         if (self.ifStatementPending()):
@@ -206,6 +208,9 @@ class cparser:
         if(self.opPending()):
             b = self.getOP()
             c = self.getExpression(None)
+            if (c == None):
+                print("Error in LineNumber:", self.oLexer.lineNumber,"Expecting an Expression after", b.getLextype())
+                sys.exit()
             b.left = a
             a.left = c
             return b
@@ -243,6 +248,8 @@ class cparser:
             expr = self.getExpression(None)
             self.match(types.CPAREN)
             return expr
+        else:
+            return None
 
     def getlambda(self):
         self.match(types.LAMBDA)

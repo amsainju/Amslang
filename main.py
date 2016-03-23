@@ -4,11 +4,12 @@
 #Description: contains main functions that calls scanner module of cscanner class. 
 import sys
 import parser
+import helper
 def main():
 	if len(sys.argv) == 2:
 		source = sys.argv[1]
 		oparser = parser.cparser(source)
-		oparser.parser()
+		parsetree = oparser.parser()
 	else:
 		print("Please provide the file name.\nSyntax : $scanner filename")
 

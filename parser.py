@@ -3,6 +3,7 @@
 #Description: 
 import lexer 
 import sys
+import helper
 from type import types
 class cparser:
     def __init__(self,source):
@@ -12,8 +13,9 @@ class cparser:
     def parser(self):
         self.oLexer = lexer.lexer(self.source)
         self.pending = self.oLexer.lex()
-        self.program()
-        self.match(types.END_OF_FILE)    
+        parsetree = self.program()
+        self.match(types.END_OF_FILE)
+        retrun parsetree   
         #print("End of Program")
 
     def check(self,ltype):
@@ -38,7 +40,7 @@ class cparser:
         stmt = self.getStatement()
         if (self.statementPending()):
             stmt2 = self.program()
-            return self.cons(types.JOIN,stmt,stmt2)
+            return helper.cons(types.JOIN,stmt,stmt2)
         else:
             return stmt
 
@@ -92,7 +94,7 @@ class cparser:
                 self.match(types.ASSIGN)
                 expr2= self.getExpression(None)
                 self.match(types.SEMI)
-                return self.cons(types.COLLECTIONUPDATE,idname,self.cons(types.JOIN,expr, self.cons(types.JOIN, expr2,None)))
+                return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,expr, helper.cons(types.JOIN, expr2,None)))
             else:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
@@ -164,7 +166,7 @@ class cparser:
         self.match(types.CBRACE)
         functionName.left = optParameterList
         optParameterList.left = block
-        return self.cons(types.FUNCDEF,functionName,(self.cons(types.JOIN, optParameterList, self.cons(types.JOIN,block,None))))
+        return helper.cons(types.FUNCDEF,functionName,(helper.cons(types.JOIN, optParameterList, helper.cons(types.JOIN,block,None))))
 
 
     def getOptIdentifierList(self):
@@ -180,7 +182,7 @@ class cparser:
             b = self.getIdentifierList()
         else:
             b = None
-        return self.cons(types.PARAMETERLIST,a,b)
+        return helper.cons(types.PARAMETERLIST,a,b)
 
 
 
@@ -197,7 +199,7 @@ class cparser:
             b = self.getArgumentList()
         else:
             b = None
-        return self.cons(types.ARGUMENTLIST,a,b)
+        return helper.cons(types.ARGUMENTLIST,a,b)
 
 
     def getExpression(self,first):
@@ -224,12 +226,12 @@ class cparser:
                 self.match(types.OPAREN)
                 optArgList = self.getArgumentList()
                 self.match(types.CPAREN)
-                return self.cons(types.FUNCTIONCALL,idname,optArgList)
+                return helper.cons(types.FUNCTIONCALL,idname,optArgList)
             elif (self.check(types.OSQBRACE)):
                 self.match(types.OSQBRACE)
                 expr = self.getExpression(None)
                 self.match(types.CSQBRACE)
-                return self.cons(types.COLLECTIONACCESS,idname,expr)
+                return helper.cons(types.COLLECTIONACCESS,idname,expr)
             else:
                 return idname
         elif (self.stringPending()):
@@ -264,40 +266,40 @@ class cparser:
             self.match(types.OPAREN)
             arglist = self.getArgumentList()
             self.match(types.CPAREN)
-            return self.cons(types.CLOSURE,optIdList,self.cons(types.JOIN,expr,self.cons(types.JOIN,arglist,None)));
+            return helper.cons(types.CLOSURE,optIdList,helper.cons(types.JOIN,expr,helper.cons(types.JOIN,arglist,None)));
         else:
-            return self.cons(types.CLOSURE,optIdList,self.cons(types.JOIN,expr,None));
+            return helper.cons(types.CLOSURE,optIdList,helper.cons(types.JOIN,expr,None));
 
     def getBlock(self):
         statement = self.getStatement()
         #self.match(types.SEMI)
         if (self.statementPending()):
             statement2 = self.getBlock()
-            return self.cons(types.STATEMENT,statement,statement2)
+            return helper.cons(types.STATEMENT,statement,statement2)
         else:
-            return self.cons(types.STATEMENT,statement,None)
+            return helper.cons(types.STATEMENT,statement,None)
 
 
     def getOptArrayItems(self):
         if (self.arrayItemsPending()):
             return self.getArrayItems()
         elif (self.check(types.CSQBRACE)):
-            return self.cons(types.ARRAYITEMS,None,None)
+            return helper.cons(types.ARRAYITEMS,None,None)
 
     def getOptDictItems(self):
         if (self.dictItemsPending()):
             return self.getDictItems()
         elif (self.check(types.CBRACE)):
-            return self.cons(types.DICTIONARYITEMS,None,None)
+            return helper.cons(types.DICTIONARYITEMS,None,None)
 
     def getArrayItems(self):
         a = self.getPrimary()
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArrayItems()
-            return self.cons(types.ARRAYITEMS,a,b)
+            return helper.cons(types.ARRAYITEMS,a,b)
         else:
-            return self.cons(types.ARRAYITEMS,a,None)
+            return helper.cons(types.ARRAYITEMS,a,None)
 
     def getDictItems(self):
         a = self.getPrimary()
@@ -307,9 +309,9 @@ class cparser:
         if (self.check(types.COMMA)):
             self.advance()
             c = self.getDictItems()
-            return self.cons(types.DICTIONARYITEMS,a,c)
+            return helper.cons(types.DICTIONARYITEMS,a,c)
         else:
-            return self.cons(types.DICTIONARYITEMS,a,None)
+            return helper.cons(types.DICTIONARYITEMS,a,None)
 
     def getOP(self):
         if(self.check(types.PLUS)):
@@ -340,14 +342,6 @@ class cparser:
             return self.match(types.OR)
         elif(self.check(types.AND)):
             return self.match(types.AND)
-
-
-    def cons(self,ltype,leftlexeme,rightlexeme):
-        intermediate = lexer.lexeme(ltype,None)
-        intermediate.left = leftlexeme
-        intermediate.right = rightlexeme
-        return intermediate
-
 
     def opPending(self):
         return self.check(types.PLUS) or self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) or self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO)  or self.check(types.NOTEQUAL) or self.check(types.OR) or self.check(types.AND)

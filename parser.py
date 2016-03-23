@@ -54,26 +54,28 @@ class cparser:
         if(self.idPending()):
             idname = self.match(types.ID)
             if (self.check(types.ASSIGN)):
-                self.match(types.ASSIGN)
+                assign = self.match(types.ASSIGN)
                 if(self.check(types.OSQBRACE)): #Array Defination
                     self.match(types.OSQBRACE)
                     newarray = lexer.lexeme(types.ARRAY,None)
                     optArrayItems = self.getOptArrayItems()
                     self.match(types.CSQBRACE)
                     newarray.left = optArrayItems
-                    idname.left = newarray
                     self.match(types.SEMI)
-                    return idname
+                    assign.left = idname
+                    assign.right = newarray
+                    return assign
                 elif (self.check(types.OBRACE)): #Dictionary defination
                     self.match(types.OBRACE)
                     optDictItems = self.getOptDictItems()
                     self.match(types.CBRACE)
                     newdict = lexer.lexeme(types.DICTIONARY,None)
-                    newdict.left = optDictItems
-                    idname.left = newdict
                     self.match(types.SEMI)
-                    return idname
-                elif (self.check(types.INPUT)):
+                    newdict.left = optDictItems
+                    assign.left = idnmane
+                    assign.right = newdict
+                    return assign
+                elif (self.check(types.INPUT)):                #may not be required. change to builtin
                     inputcommand = self.match(types.INPUT)
                     self.match(types.OPAREN)
                     msg = self.getPrimary()
@@ -84,22 +86,23 @@ class cparser:
                     return idname
                 elif (self.expressionPending()):   #variable decleration and defination and update
                     expr = self.getExpression(None)
-                    idname.left = expr
                     self.match(types.SEMI)
-                    return idname
+                    assign.left = idname
+                    assign.right = expr
+                    return assign
             elif (self.check(types.OSQBRACE)):    #Array or Dictionary update
                 self.match(types.OSQBRACE);
-                expr = self.getExpression(None)
+                pos = self.getExpression(None)
                 self.match(types.CSQBRACE)
                 self.match(types.ASSIGN)
-                expr2= self.getExpression(None)
+                newvalue= self.getExpression(None)
                 self.match(types.SEMI)
-                return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,expr, helper.cons(types.JOIN, expr2,None)))
+                return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,pos, helper.cons(types.JOIN, newvalue,None)))
             else:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
                 return expr
-        elif (self.check(types.PRINT)):
+        elif (self.check(types.PRINT)):     #change to builtin
             printexpr = self.match(types.PRINT)
             self.match(types.OPAREN)
             optArglist = self.getOptArgumentList()
@@ -284,22 +287,22 @@ class cparser:
         if (self.arrayItemsPending()):
             return self.getArrayItems()
         elif (self.check(types.CSQBRACE)):
-            return helper.cons(types.ARRAYITEMS,None,None)
+            return helper.cons(types.JOIN,None,None)
 
     def getOptDictItems(self):
         if (self.dictItemsPending()):
             return self.getDictItems()
         elif (self.check(types.CBRACE)):
-            return helper.cons(types.DICTIONARYITEMS,None,None)
+            return helper.cons(types.JOIN,None,None)
 
     def getArrayItems(self):
         a = self.getPrimary()
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArrayItems()
-            return helper.cons(types.ARRAYITEMS,a,b)
+            return helper.cons(types.JOIN,a,b)
         else:
-            return helper.cons(types.ARRAYITEMS,a,None)
+            return helper.cons(types.JOIN,a,None)
 
     def getDictItems(self):
         a = self.getPrimary()
@@ -309,9 +312,9 @@ class cparser:
         if (self.check(types.COMMA)):
             self.advance()
             c = self.getDictItems()
-            return helper.cons(types.DICTIONARYITEMS,a,c)
+            return helper.cons(types.JOIN,a,c)
         else:
-            return helper.cons(types.DICTIONARYITEMS,a,None)
+            return helper.cons(types.JOIN,a,None)
 
     def getOP(self):
         if(self.check(types.PLUS)):

@@ -15,7 +15,7 @@ class cparser:
         self.pending = self.oLexer.lex()
         parsetree = self.program()
         self.match(types.END_OF_FILE)
-        retrun parsetree   
+        return parsetree   
         #print("End of Program")
 
     def check(self,ltype):
@@ -40,9 +40,9 @@ class cparser:
         stmt = self.getStatement()
         if (self.statementPending()):
             stmt2 = self.program()
-            return helper.cons(types.JOIN,stmt,stmt2)
+            return helper.cons(types.STATEMENT,stmt,stmt2)
         else:
-            return stmt
+            return helper.cons(types.STATEMENT,stmt,None)
 
     def getStatement(self):
         if (self.ifStatementPending()):
@@ -75,15 +75,15 @@ class cparser:
                     assign.left = idnmane
                     assign.right = newdict
                     return assign
-                elif (self.check(types.INPUT)):                #may not be required. change to builtin
-                    inputcommand = self.match(types.INPUT)
-                    self.match(types.OPAREN)
-                    msg = self.getPrimary()
-                    self.match(types.CPAREN)
-                    self.match(types.SEMI)
-                    inputcommand.left = msg
-                    idname.left = inputcommand
-                    return idname
+                #elif (self.check(types.INPUT)):                #may not be required. change to builtin
+                    #inputcommand = self.match(types.INPUT)
+                    #self.match(types.OPAREN)
+                    #msg = self.getPrimary()
+                    #self.match(types.CPAREN)
+                    #self.match(types.SEMI)
+                    #inputcommand.left = msg
+                    #idname.left = inputcommand
+                    #return idname
                 elif (self.expressionPending()):   #variable decleration and defination and update
                     expr = self.getExpression(None)
                     self.match(types.SEMI)
@@ -102,15 +102,14 @@ class cparser:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
                 return expr
-        elif (self.check(types.PRINT)):     #change to builtin
-            printexpr = self.match(types.PRINT)
-            self.match(types.OPAREN)
-            optArglist = self.getOptArgumentList()
-            self.match(types.CPAREN)
-            printexpr.left = optArglist
-            self.match(types.SEMI)
-            return printexpr
-
+        #elif (self.check(types.PRINT)):     #change to builtin
+            #printexpr = self.match(types.PRINT)
+            #self.match(types.OPAREN)
+            #optArglist = self.getOptArgumentList()
+            #self.match(types.CPAREN)
+            #printexpr.left = optArglist
+            #self.match(types.SEMI)
+            #return printexpr
         else:
             expr = self.getExpression(None)
             self.match(types.SEMI)

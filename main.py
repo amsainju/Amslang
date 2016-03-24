@@ -11,8 +11,12 @@ def main():
 		source = sys.argv[1]
 		oparser = parser.cparser(source)
 		parsetree = oparser.parser()
-		env = helper.createEnv();
-		helper.eval(parsetree,env)
+		globalenv = helper.createEnv();
+		print(parsetree.getLextype())
+		print(parsetree.right.left.getLextype())
+		#print(parsetree.left.getLextype())
+		helper.eval(parsetree,globalenv)
+		#print(globalenv.left.getLextype())
 	else:
 		print("Please provide the file name.\nSyntax : $scanner filename")
 

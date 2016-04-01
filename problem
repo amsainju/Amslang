@@ -1,0 +1,28 @@
+Problems:
+	does not work if there is comment in the lastline
+	precedence 
+	associativity
+	escape sequence not working while printing
+
+Remaining Tasks:
+	1) Array
+	2) Dictionary
+	3) Lambda
+	4) Delay evaluation of function arguments
+	
+
+Requirements:
+
+   1. comments -Done											
+   2. integers and strings -Done
+   3. dynamically typed (like Scheme and Python) -Done
+   4. dictionaries with O(logn)	worst-case access time
+   5. arrays with O(1) access time
+   6. conditionals -Done
+   7. recursion -Done
+   8. iteration	-Done
+   9. convenient means to print to the console -Done
+   10. an adequate set of operators -Done
+   11. anonymous functions
+   12. functions as first-class objects (i.e. functions can be manipulated as in Scheme - e.g. local functions) -Done
+   13. (graduate only) delayed evaluation of function arguments

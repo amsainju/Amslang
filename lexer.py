@@ -142,8 +142,8 @@ class lexer:
     
     def lexWord(self,ch):
         buffer = ""
-        notvalidcharacters = {"",'\t','\n',' ',';',',','(',')','%','[',']','{','}','.','-','+','*','&','^','\\','<','>','?','=','|','#','~','`',':','!','@','&'}
-        keywords = {'define','lambda','print','else','if','while','input','and','or'}
+        notvalidcharacters = {"",'\t','\n',' ',';',',','(',')','%','[',']','{','}','.','-','+','*','&','^','\\','<','>','?','=','|','#','~','`',':','!','@','&','/'}
+        keywords = {'define','lambda','else','if','while','and','or','var'}
         while(ch not in notvalidcharacters):
             buffer += ch
             ch = self.getCharacter()
@@ -154,8 +154,8 @@ class lexer:
                 return lexeme(types.DEFINE,None)
             elif (buffer.upper() == "LAMBDA"):
                 return lexeme(types.LAMBDA,None)
-            elif (buffer.upper() == "PRINT"):
-                return lexeme(types.PRINT,None)
+            #elif (buffer.upper() == "PRINT"):
+             #   return lexeme(types.PRINT,None)
             elif (buffer.upper() == "ELSE"):
                 return lexeme(types.ELSE,None)
             elif (buffer.upper() == "IF"):
@@ -164,10 +164,12 @@ class lexer:
                 return lexeme(types.WHILE,None)
             elif (buffer.upper() == "OR"):
                 return lexeme(types.OR,None)  
-            elif (buffer.upper() == "INPUT"):
-                return lexeme(types.INPUT,None)
+            #elif (buffer.upper() == "INPUT"):
+            #    return lexeme(types.INPUT,None)
             elif (buffer.upper() == "AND"):
                 return lexeme(types.AND,None)
+            elif (buffer.upper() == "VAR"):
+                return lexeme(types.VAR,None)
             else:
                 return lexeme(types.BADCHARACTER,buffer)         
         else:
@@ -181,6 +183,7 @@ class lexer:
                 ch= self.getCharacter()
             buffer+= ch
             ch = self.getCharacter()
+        #print(buffer)
         return lexeme(types.STRING,buffer)
     
     def lex(self):
@@ -189,13 +192,14 @@ class lexer:
         return self.getLexeme(ch)
     
 
-class lexeme:   
+class lexeme:
+    indent = 0
     def __init__(self,lex_type,lex_val):
         self.lex_type = lex_type
         self.lex_val = lex_val
         self.left = None
         self.right = None
-        
+
     def setleft(self,left):
         self.left = left
 

@@ -1,2 +1,14 @@
-y = 10-3-2-1;
-x = 3+4;
+define recursion(a)
+{
+	if(a==10)
+	{
+		show("Done");
+	}
+	else
+	{
+	  show(a);
+	   recursion(a+1);
+	}
+}
+recursion(5);
+

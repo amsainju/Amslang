@@ -16,7 +16,7 @@ class cparser:
         parsetree = self.program()
         self.match(types.END_OF_FILE)
         return parsetree   
-        #print("End of Program")
+        print("End of Program")
 
     def check(self,ltype):
         return self.pending.getLextype() == ltype
@@ -51,40 +51,13 @@ class cparser:
             return self.getWhileStatement()
         elif (self.functionDefPending()):
             return self.getFunctionDef()
+        elif (self.varPending()):
+            return self.getVariableDefination()
         if(self.idPending()):
             idname = self.match(types.ID)
             if (self.check(types.ASSIGN)):
                 assign = self.match(types.ASSIGN)
-                if(self.check(types.OSQBRACE)): #Array Defination
-                    self.match(types.OSQBRACE)
-                    newarray = lexer.lexeme(types.ARRAY,None)
-                    optArrayItems = self.getOptArrayItems()
-                    self.match(types.CSQBRACE)
-                    newarray.left = optArrayItems
-                    self.match(types.SEMI)
-                    assign.left = idname
-                    assign.right = newarray
-                    return assign
-                elif (self.check(types.OBRACE)): #Dictionary defination
-                    self.match(types.OBRACE)
-                    optDictItems = self.getOptDictItems()
-                    self.match(types.CBRACE)
-                    newdict = lexer.lexeme(types.DICTIONARY,None)
-                    self.match(types.SEMI)
-                    newdict.left = optDictItems
-                    assign.left = idnmane
-                    assign.right = newdict
-                    return assign
-                #elif (self.check(types.INPUT)):                #may not be required. change to builtin
-                    #inputcommand = self.match(types.INPUT)
-                    #self.match(types.OPAREN)
-                    #msg = self.getPrimary()
-                    #self.match(types.CPAREN)
-                    #self.match(types.SEMI)
-                    #inputcommand.left = msg
-                    #idname.left = inputcommand
-                    #return idname
-                elif (self.expressionPending()):   #variable decleration and defination and update
+                if(self.expressionPending()):   #variable decleration and defination and update
                     expr = self.getExpression(None)
                     self.match(types.SEMI)
                     assign.left = idname
@@ -102,18 +75,41 @@ class cparser:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
                 return expr
-        #elif (self.check(types.PRINT)):     #change to builtin
-            #printexpr = self.match(types.PRINT)
-            #self.match(types.OPAREN)
-            #optArglist = self.getOptArgumentList()
-            #self.match(types.CPAREN)
-            #printexpr.left = optArglist
-            #self.match(types.SEMI)
-            #return printexpr
         else:
             expr = self.getExpression(None)
             self.match(types.SEMI)
             return expr
+
+    def getVariableDefination(self):
+        var = self.match(types.VAR)
+        idname = self.match(types.ID)
+        self.match(types.ASSIGN)
+        if(self.check(types.OSQBRACE)): #Array Defination
+            self.match(types.OSQBRACE)
+            newarray = lexer.lexeme(types.ARRAY,None)
+            optArrayItems = self.getOptArrayItems()
+            self.match(types.CSQBRACE)
+            newarray.left = optArrayItems
+            self.match(types.SEMI)
+            var.left = idname
+            var.right = newarray
+            return var
+        elif (self.check(types.OBRACE)): #Dictionary defination
+            self.match(types.OBRACE)
+            optDictItems = self.getOptDictItems()
+            self.match(types.CBRACE)
+            newdict = lexer.lexeme(types.DICTIONARY,None)
+            self.match(types.SEMI)
+            newdict.left = optDictItems
+            var.left = idnmane
+            var.right = newdict
+            return var
+        else:
+            expr = self.getExpression(None)
+            self.match(types.SEMI)
+            var.left = idname
+            var.right = expr
+            return var
 
 
     def getIfStatement(self):
@@ -125,21 +121,20 @@ class cparser:
         block = self.getBlock()
         self.match(types.CBRACE)
         ifstatement.left = expr  
-        expr.left = block
+        ifstatement.right = helper.cons(types.JOIN,block,None)
         if (self.elsePending()):
             elsecase = self.match(types.ELSE)
             if(self.ifStatementPending()):
                 elsecase.left = self.getIfStatement()
-                ifstatement.right = elsecase
+                ifstatement.right.right = elsecase
                 return ifstatement
             elif (self.blockPending()):
                 self.match(types.OBRACE)
                 elseblock = self.getBlock()
                 self.match(types.CBRACE)
                 elsecase.left = elseblock
-                ifstatement.right = elsecase
+                ifstatement.right.right = elsecase
                 return ifstatement
-        ifstatement.right = None
         return ifstatement
 
     def getWhileStatement(self):
@@ -151,8 +146,6 @@ class cparser:
         block = self.getBlock()
         self.match(types.CBRACE)
         whilestatement.left = expr
-        #expr.left = block
-        #or
         whilestatement.right = block
         return whilestatement
  
@@ -166,9 +159,8 @@ class cparser:
         self.match(types.OBRACE)
         block = self.getBlock()
         self.match(types.CBRACE)
-        functionName.left = optParameterList
-        optParameterList.left = block
-        return helper.cons(types.FUNCDEF,functionName,(helper.cons(types.JOIN, optParameterList, helper.cons(types.JOIN,block,None))))
+        pt = helper.cons(types.FUNCDEF,functionName,(helper.cons(types.JOIN, optParameterList, helper.cons(types.JOIN,block,None))))
+        return pt
 
 
     def getOptIdentifierList(self):
@@ -179,6 +171,7 @@ class cparser:
 
     def getIdentifierList(self):
         a = self.match(types.ID)
+        #print("a=",a.getLextype())
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getIdentifierList()
@@ -203,15 +196,44 @@ class cparser:
             b = None
         return helper.cons(types.ARGUMENTLIST,a,b)
 
-
     def getExpression(self,first):
+        expr =self.getArithematicExpression(first)
+        if(self.comparisonPending()):
+            comp = self.getComparison()
+            expr2 = self.getArithematicExpression(None)
+            comp.left=expr
+            comp.right= expr2
+            if(self.gatePending()):
+                gate = self.getGate()
+                expr3 = self.getExpression(None)
+                gate.left=comp
+                gate.right=expr3
+                return gate
+            else:
+                return comp
+        else:
+            return expr
+
+
+    def getArithematicExpression(self,first):
         if(first):
             a = first
+            if(self.check(types.OPAREN) or self.check(types.OSQBRACE)):
+                if(self.check(types.OPAREN)):
+                    self.match(types.OPAREN)
+                    optArgList = self.getOptArgumentList()
+                    self.match(types.CPAREN)
+                    a = helper.cons(types.FUNCTIONCALL,None,helper.cons(types.JOIN,first,optArgList))
+                elif (self.check(types.OSQBRACE)):
+                    self.match(types.OSQBRACE)
+                    expr = self.getExpression(None)
+                    self.match(types.CSQBRACE)
+                    a = helper.cons(types.COLLECTIONACCESS,first,expr)
         else:
             a = self.getPrimary()
         if(self.opPending()):
             b = self.getOP()
-            c = self.getExpression(None)
+            c = self.getArithematicExpression(None)
             if (c == None):
                 print("Error in LineNumber:", self.oLexer.lineNumber,"Expecting an Expression after", b.getLextype())
                 sys.exit()
@@ -226,9 +248,9 @@ class cparser:
             idname = self.match(types.ID)
             if (self.check(types.OPAREN)):   #for function call
                 self.match(types.OPAREN)
-                optArgList = self.getArgumentList()
+                optArgList = self.getOptArgumentList()
                 self.match(types.CPAREN)
-                return helper.cons(types.FUNCTIONCALL,idname,optArgList)
+                return helper.cons(types.FUNCTIONCALL,None,helper.cons(types.JOIN,idname,optArgList))
             elif (self.check(types.OSQBRACE)):
                 self.match(types.OSQBRACE)
                 expr = self.getExpression(None)
@@ -248,10 +270,11 @@ class cparser:
             sign.left = value
             return sign
         elif (self.check(types.OPAREN)):
-            self.match(types.OPAREN)
-            expr = self.getExpression(None)
+            oparen = self.match(types.OPAREN)
+            parenExpr = self.getExpression(None)
             self.match(types.CPAREN)
-            return expr
+            oparen.right = parenExpr
+            return oparen
         else:
             return None
 
@@ -295,7 +318,7 @@ class cparser:
             return helper.cons(types.JOIN,None,None)
 
     def getArrayItems(self):
-        a = self.getPrimary()
+        a = self.getExpression(None)
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArrayItems()
@@ -326,9 +349,11 @@ class cparser:
             return self.match(types.TIMES)
         elif(self.check(types.MOD)):
             return self.match(types.MOD)
-        elif(self.check(types.ASSIGN)):
-            return self.match(types.ASSIGN)
-        elif(self.check(types.GREATERTHAN)):
+        #elif(self.check(types.ASSIGN)):
+        #    return self.match(types.ASSIGN)
+
+    def getComparison(self):
+        if(self.check(types.GREATERTHAN)):
             return self.match(types.GREATERTHAN)
         elif(self.check(types.GREATERTHANEQUALTO)):
             return self.match(types.GREATERTHANEQUALTO)
@@ -340,13 +365,21 @@ class cparser:
             return self.match(types.EQUALTO)
         elif(self.check(types.NOTEQUAL)):
             return self.match(types.NOTEQUAL)
-        elif(self.check(types.OR)):
+
+    def getGate(self):
+        if(self.check(types.OR)):
             return self.match(types.OR)
         elif(self.check(types.AND)):
             return self.match(types.AND)
 
     def opPending(self):
-        return self.check(types.PLUS) or self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) or self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO)  or self.check(types.NOTEQUAL) or self.check(types.OR) or self.check(types.AND)
+        return self.check(types.PLUS) or self.check(types.MINUS) or self.check(types.DIVIDE) or self.check(types.TIMES) or self.check(types.MOD) 
+
+    def comparisonPending(self):
+        return self.check(types.GREATERTHAN) or self.check(types.GREATERTHANEQUALTO) or self.check(types.LESSTHAN) or self.check(types.LESSTHANEQUALTO) or self.check(types.EQUALTO)  or self.check(types.NOTEQUAL) 
+
+    def gatePending(self):
+        return self.check(types.OR) or self.check(types.AND)
 
 
     def elsePending(self):
@@ -358,9 +391,11 @@ class cparser:
     def dictItemsPending(self):
         return self.primaryPending()
 
+    def varPending(self):
+        return self.check(types.VAR)
 
     def statementPending(self):
-        return self.ifStatementPending() or self.whileStatementPending() or self.functionDefPending() or self.idPending() or self.check(types.PRINT)
+        return self.ifStatementPending() or self.whileStatementPending() or self.functionDefPending() or self.idPending() or self.varPending()
 
     def arrayItemsPending(self):
         return self.primaryPending()

@@ -64,13 +64,22 @@ class cparser:
                     assign.right = expr
                     return assign
             elif (self.check(types.OSQBRACE)):    #Array or Dictionary update
-                self.match(types.OSQBRACE);
+                self.match(types.OSQBRACE)
                 pos = self.getExpression(None)
                 self.match(types.CSQBRACE)
                 self.match(types.ASSIGN)
                 newvalue= self.getExpression(None)
                 self.match(types.SEMI)
                 return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,pos, helper.cons(types.JOIN, newvalue,None)))
+            elif (self.check(types.DOT)):
+                self.match(types.DOT)
+                if (self.check(types.APPEND)):
+                    self.match(types.APPEND)
+                    self.match(types.OPAREN)
+                    expr = self.getExpression(None)
+                    self.match(types.CPAREN)
+                    self.match(types.SEMI)
+                    return helper.cons(types.ARRAYAPPEND,idname,expr)
             else:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
@@ -228,7 +237,7 @@ class cparser:
                     self.match(types.OSQBRACE)
                     expr = self.getExpression(None)
                     self.match(types.CSQBRACE)
-                    a = helper.cons(types.COLLECTIONACCESS,first,expr)
+                    a = helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,first,expr))
         else:
             a = self.getPrimary()
         if(self.opPending()):
@@ -255,7 +264,7 @@ class cparser:
                 self.match(types.OSQBRACE)
                 expr = self.getExpression(None)
                 self.match(types.CSQBRACE)
-                return helper.cons(types.COLLECTIONACCESS,idname,expr)
+                return helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,idname,expr))
             else:
                 return idname
         elif (self.stringPending()):
@@ -278,22 +287,40 @@ class cparser:
         else:
             return None
 
+    # def getlambda(self):
+    #     self.match(types.LAMBDA)
+    #     self.match(types.OPAREN)
+    #     optIdList = self.getOptIdentifierList()
+    #     self.match(types.CPAREN)
+    #     self.match(types.COLON)
+    #     self.match(types.OPAREN)
+    #     expr = self.getExpression(None)
+    #     self.match(types.CPAREN)
+    #     if (self.check(types.OPAREN)):
+    #         self.match(types.OPAREN)
+    #         arglist = self.getArgumentList()
+    #         self.match(types.CPAREN)
+    #         return helper.cons(types.LAMBDACALL,None,helper.cons(types.JOIN,optIdList,helper.cons(types.JOIN,expr,helper.cons(types.JOIN,arglist,None))));
+    #     else:
+    #         return helper.cons(types.LAMBDA,None,helper.cons(types.JOIN,optIdList,helper.cons(types.JOIN,expr,None)));
+
     def getlambda(self):
         self.match(types.LAMBDA)
         self.match(types.OPAREN)
-        optIdList = self.getOptIdentifierList()
+        optParameterList = self.getOptIdentifierList()
         self.match(types.CPAREN)
-        self.match(types.COLON)
-        self.match(types.OPAREN)
-        expr = self.getExpression(None)
-        self.match(types.CPAREN)
-        if (self.check(types.OPAREN)):
+        self.match(types.OBRACE)
+        block = self.getBlock()
+        self.match(types.CBRACE)
+        if (self.check(types.COLON)):
+            self.match(types.COLON)
             self.match(types.OPAREN)
-            arglist = self.getArgumentList()
+            arglist = self.getOptArgumentList()
             self.match(types.CPAREN)
-            return helper.cons(types.CLOSURE,optIdList,helper.cons(types.JOIN,expr,helper.cons(types.JOIN,arglist,None)));
+            return helper.cons(types.LAMBDACALL,None,(helper.cons(types.JOIN,arglist, helper.cons(types.JOIN,optParameterList,helper.cons(types.JOIN,block,None)))))
         else:
-            return helper.cons(types.CLOSURE,optIdList,helper.cons(types.JOIN,expr,None));
+            return helper.cons(types.LAMBDA,None,(helper.cons(types.JOIN, optParameterList, helper.cons(types.JOIN,block,None))))
+
 
     def getBlock(self):
         statement = self.getStatement()

@@ -5,11 +5,11 @@ Problems:
 	escape sequence not working while printing
 
 Remaining Tasks:
-	1) Array
-	2) Dictionary
-	3) Lambda
-	4) Delay evaluation of function arguments
-	
+	1) Dictionary
+	2) Delay evaluation of function arguments
+	3) Pretty Printing
+	4) Test Program
+
 
 Requirements:
 
@@ -17,12 +17,24 @@ Requirements:
    2. integers and strings -Done
    3. dynamically typed (like Scheme and Python) -Done
    4. dictionaries with O(logn)	worst-case access time
-   5. arrays with O(1) access time
+   5. arrays with O(1) access time -Done
    6. conditionals -Done
    7. recursion -Done
    8. iteration	-Done
    9. convenient means to print to the console -Done
    10. an adequate set of operators -Done
-   11. anonymous functions
+   11. anonymous functions - Done
    12. functions as first-class objects (i.e. functions can be manipulated as in Scheme - e.g. local functions) -Done
    13. (graduate only) delayed evaluation of function arguments
+
+
+Things to do:
+April 7 : cs503 exam	(study from April 4)
+April 8 : cs557 Assignment 6 (do on April 7)
+April 20: cs503 Assignment 3 (2,3,4,5,9) (try one on April 4,...)
+April 22: cs557 Writing Assignment 2 (work on this on April 8,9)
+April 26: cs615 Presentation (main focus April 8,9,10,11 finish report and presentation slide)
+April 27: cs503 DPL (main focus day 23,24,25)
+April 28: cs615 exam
+May 2-6	: cs503 exam
+May 2	: cs557 exam

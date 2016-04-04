@@ -12,3 +12,30 @@ define recursion(a)
 }
 recursion(5);
 
+var i = 10;
+if(i==10)
+{
+	show("i = ",i);
+}
+
+var arr = [1,2,3,4,5];
+show("arr[0] = ",arr[0]);
+show("arr[1] = ",arr[1]);
+show("arr[2] = ",arr[2]);
+show("arr[3] = ",arr[3]);
+show("arr[4] = ",arr[4]);
+arr[2]=100;
+show("arr[2] = ",arr[2]);
+arr.append(6);
+show("arr[5] = ",arr[5]);
+show(len(arr));
+var i = lambda(x){x*x;}:(2);
+show(i);
+
+define test(f,a)
+{
+	f(a);
+}
+
+var j = test(lambda(x){x+2;},5);
+show("j =", j);

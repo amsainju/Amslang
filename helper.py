@@ -19,7 +19,7 @@ def insert(id,val,env):
 	env.right.left = cons(types.JOIN,val,values)
 
 def lookup(ide,env):
-	builtinFunctions = {"SHOW","APPEND","LOAD"}
+	builtinFunctions = {"SHOW","LEN"}
 	if(ide.getLexval().upper() in builtinFunctions):
 		return lexer.lexeme(types.BUILTIN,ide.getLexval().upper())
 	ids = env.left
@@ -220,12 +220,21 @@ def evalBuiltin(builtinfunc,evaluatedargs,env):
 	name = builtinfunc.getLexval()
 	if (name == "SHOW"):
 		return evalShow(evaluatedargs)
+	elif(name == "LEN"):
+		return evalLen(evaluatedargs)
 
 def evalShow(evaluatedArgs):
 	while(evaluatedArgs!=None):
 		print(evaluatedArgs.left.getLexval(),end='')
 		evaluatedArgs=evaluatedArgs.right
 	print()
+
+def evalLen(evaluatedArgs):
+	#print(evaluatedArgs.left.getLextype())
+	if(evaluatedArgs.left.getLextype()=="ARRAY"):
+		return lexer.lexeme(types.INTEGER,len(evaluatedArgs.left.getLexval()))
+	else:
+		showerror("Argument should be an array")
 
 def evalargumentList(pt,env):
 	if(pt.left!=None):
@@ -253,7 +262,55 @@ def evalwhileloop(pt,env):
 		eval(body,env)
 		return evalwhileloop(pt,env)
 
+def evalcollectionaccess(pt,env): #need to work on dictionary
+	idname = pt.right.left
+	expr = pt.right.right
+	index = eval(expr,env)
+	collection = lookup(idname,env)
+	if(collection.getLextype()=="ARRAY"):
+		if(index.getLextype()=="INTEGER"):
+			if(index.getLexval()<len(collection.getLexval())):
+				if(isinstance(collection.getLexval()[index.getLexval()],int)):
+					return lexer.lexeme(types.INTEGER,collection.getLexval()[index.getLexval()])
+				elif(isinstance(collection.getLexval()[index.getLexval()],str)):
+					return lexer.lexeme(types.STRING,collection.getLexval()[index.getLexval()])
+			else:
+				showerror("index out of range..")
+		else:
+			showerror("index should be an Integer")
 
+def evalcollectionupdate(pt,env):
+	idname = pt.left
+	index = pt.right.left
+	newvalue = pt.right.right.left
+	collection = lookup(idname,env)
+	if(collection.getLextype()=="ARRAY"):
+		if(index.getLextype()=="INTEGER"):
+			if(index.getLexval()<len(collection.getLexval())):
+				collection.getLexval()[index.getLexval()] = newvalue.getLexval()
+			else:
+				showerror("Index out of range")
+
+def evalarrayappend(pt,env):
+	idname = pt.left
+	expr = pt.right
+	collection = lookup(idname,env)
+	if(collection.getLextype()=="ARRAY"):
+		collection.getLexval().append(expr.getLexval())
+
+def evallambdacall(pt,env):
+	arglist = pt.right.left
+	evaluatedArgs = evalargumentList(arglist,env)
+	parameterlist = pt.right.right.left
+	newEnv = extendEnv(parameterlist,evaluatedArgs,env)
+	body = pt.right.right.right.left
+	return eval(body,newEnv)
+
+def evallambda(pt,env):
+	closure = lexer.lexeme(types.CLOSURE,None)
+	closure.right = pt.right
+	closure.left = env
+	return closure
 
 def eval(pt,env):
 	if(pt == None):
@@ -296,8 +353,10 @@ def eval(pt,env):
 		insert(pt.left,eval(pt.right,env),env)
 	elif (pt.getLextype() == "ARRAY"):
 		return evalarray(pt,env);
+	elif (pt.getLextype() == "LAMBDACALL"):
+		return evallambdacall(pt,env)		
 	elif (pt.getLextype() == "LAMBDA"):
-		return 						#TODO
+		return evallambda(pt,env)			
 	elif (pt.getLextype() == "FUNCDEF"):
 		evalfunctionDefination(pt,env);
 	elif (pt.getLextype() == "FUNCTIONCALL"):
@@ -308,6 +367,14 @@ def eval(pt,env):
 		return evalif(pt,env);
 	elif (pt.getLextype() == "WHILE"):
 		return evalwhileloop(pt,env);
+	elif (pt.getLextype() == "COLLECTIONACCESS"):
+		return evalcollectionaccess(pt,env);
+	elif (pt.getLextype() == "COLLECTIONUPDATE"):
+		return evalcollectionupdate(pt,env);
+	elif (pt.getLextype() == "ARRAYAPPEND"):
+		return evalarrayappend(pt,env);
+	#elif (pt.getLextype() == "ARRAYLENGTH"):
+	#	return evalarraylength(pt,env);
 	elif (pt.getLextype()=="OPAREN"):
 		return eval(pt.right,env)                     #expression added to right of oparen because in left the expresion chain is developed
 	elif (pt.getLextype() == "STATEMENT"):

@@ -1,0 +1,8 @@
+#error 2
+define func(x,y,z){
+	x*y*z;
+}
+println(func(1,2,3,4)); # Error: Too Many Arguments
+var x =5;
+var z = 9;
+func(1,2,3);

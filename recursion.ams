@@ -1,0 +1,12 @@
+print("The 10th number in fibonaccai series is : ");
+
+define fibonacci(count)
+{
+	if(count<=1){
+			count;
+		}
+		else{
+			fibonacci(count-1) + fibonacci(count-2);
+		}
+}
+println(fibonacci(10));

@@ -1,0 +1,26 @@
+define map(function, array){
+	var i = 0;
+	while(i<len(array)){
+		array[i] = function(array[i]);
+		i=i+1;
+	}
+}
+
+var arr = [1,2,3,4,5,6,7,8,9,10];
+var i = 0;
+println("Before Map ");
+while(i<len(arr)){
+	println("arr[",i,"] = ",arr[i]);
+	i=i+1;
+}
+define square(x){
+	x*x;
+}
+
+map(square,arr);
+var i = 0;
+println("After Map with square function passed as an argument ");
+while(i<len(arr)){
+	println("arr[",i,"] = ",arr[i]);
+	i=i+1;
+}

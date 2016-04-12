@@ -1,0 +1,24 @@
+var a = 10;
+var b = 15;
+var c = 20;
+var d = 25;
+println("first conditional : ");
+if(a==10 and b==15){
+	println("a = ",a," b = ",b);
+}
+println("second condtional :");
+if(a>10 or b>20){
+	println(a," is greater than 10 and ",b, " is greater than 20");
+}
+else if(c>20 and b==15){
+	println(c," is greater than 20 and ", b, " is equal to 15");
+}
+else if(d==25 and c==a+b){
+	println(d, " is equal to 25 and ",c," is equla to ",a+b);	
+}
+else{
+	println("a = ",a);
+	println("b = ",b);
+	println("c = ",c);
+	println("d = ",d);
+}

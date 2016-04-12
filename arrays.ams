@@ -1,0 +1,21 @@
+var array = [1,2,3,4,5];
+var i = 0;
+while(i<len(array)){
+	println("array[",i,"] = ",array[i]);
+	i=i+1;
+}
+println("Modifying Array by scaling all the elements by 10: ");
+i=0;
+while(i<len(array)){
+	array[i] = array[i]*10;
+	println("array[",i,"] = ",array[i]);
+	i=i+1;
+}
+println("Appending new Elements 60 and 70 to the array : ");
+array.append(60);
+array.append(70);
+var i = 0;
+while(i<len(array)){
+	println("array[",i,"] = ",array[i]);
+	i=i+1;
+}

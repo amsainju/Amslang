@@ -1,0 +1,33 @@
+define cons(a,(b))
+{
+	this;
+}
+var ones = cons(1,ones);
+
+define scar(c)
+{
+	c.a;
+}
+
+define scdr(c)
+{
+	c.b;
+}
+
+define sdisplay(s,n){
+	if(n == 0) {
+		println("...");
+	}
+	else{
+		print(scar(s), " ");
+		sdisplay(scdr(s),n-1);
+	}
+
+}
+define int_from(n){
+	cons( n, int_from(n+1));
+}
+println("infinite stream of ones : ");
+sdisplay(ones,10);
+println("infinite stream of ints : ");
+sdisplay(int_from(1),100);

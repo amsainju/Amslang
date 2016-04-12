@@ -1,0 +1,28 @@
+define factorial(n){
+	var c = 1;
+	var result = 1;
+	while(c<=n){
+		result = result*c;
+		c=c+1;
+	}
+	result;
+}
+
+
+var i = 0;
+var level = 5;
+while(i<level){
+	var c = 0;
+	while(c<level-(i+1)){
+		print(" ");
+		c = c+1;
+	}
+	c = 0;
+	while(c<=i){
+		print(get_integer(factorial(i)/(factorial(c)*factorial(i-c))), " ");
+		c=c+1;
+	}
+	println();
+	i = i+1;
+}
+

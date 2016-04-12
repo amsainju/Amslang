@@ -33,7 +33,7 @@ class cparser:
     def matchNoAdvance(self,ltype):
         if not (self.check(ltype)):
             #print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype(), "Got Value: ",self.pending.getLexval())
-            print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype())
+            print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got : ", self.pending.getLextype())
             sys.exit()
 
     def program(self):
@@ -67,9 +67,13 @@ class cparser:
                 self.match(types.OSQBRACE)
                 pos = self.getExpression(None)
                 self.match(types.CSQBRACE)
-                self.match(types.ASSIGN)
-                newvalue= self.getExpression(None)
-                self.match(types.SEMI)
+                if(self.check(types.ASSIGN)):
+                    self.match(types.ASSIGN)
+                    newvalue= self.getExpression(None)
+                    self.match(types.SEMI)
+                else:
+                    self.match(types.SEMI)
+                    return helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,idname,pos))
                 return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,pos, helper.cons(types.JOIN, newvalue,None)))
             elif (self.check(types.DOT)):
                 self.match(types.DOT)
@@ -80,6 +84,11 @@ class cparser:
                     self.match(types.CPAREN)
                     self.match(types.SEMI)
                     return helper.cons(types.ARRAYAPPEND,idname,expr)
+                else:
+                    variable = self.match(types.ID)    
+                    self.match(types.SEMI)                      #need to modify this
+                    return helper.cons(types.DISPATCH,None,helper.cons(types.JOIN,idname,variable))
+                    
             else:
                 expr =  self.getExpression(idname)
                 self.match(types.SEMI)
@@ -179,7 +188,13 @@ class cparser:
             return lexer.lexeme(types.PARAMETERLIST,None)
 
     def getIdentifierList(self):
-        a = self.match(types.ID)
+        if (self.check(types.OPAREN)):
+            a = self.match(types.OPAREN)
+            idname = self.match(types.ID)
+            self.match(types.CPAREN)
+            a.left = idname
+        else:
+            a = self.match(types.ID)
         #print("a=",a.getLextype())
         if (self.check(types.COMMA)):
             self.advance()
@@ -265,6 +280,10 @@ class cparser:
                 expr = self.getExpression(None)
                 self.match(types.CSQBRACE)
                 return helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,idname,expr))
+            elif (self.check(types.DOT)):
+                self.match(types.DOT)
+                variable = self.match(types.ID)    
+                return helper.cons(types.DISPATCH,None,helper.cons(types.JOIN,idname,variable))
             else:
                 return idname
         elif (self.stringPending()):

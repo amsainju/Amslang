@@ -19,7 +19,7 @@ def insert(id,val,env):
 	env.right.left = cons(types.JOIN,val,values)
 
 def lookup(ide,env):
-	builtinFunctions = {"SHOW","LEN"}
+	builtinFunctions = {"PRINTLN","LEN","PRINT","GET_INTEGER"}
 	if(ide.getLexval().upper() in builtinFunctions):
 		return lexer.lexeme(types.BUILTIN,ide.getLexval().upper())
 	ids = env.left
@@ -36,7 +36,7 @@ def lookup(ide,env):
 				ids = env.left
 				vals = env.right.left
 		env = env.right.right.left   #outer env
-	print("Identifier",ide.getLexval() ,"not found")
+	print("Error: Identifier",ide.getLexval() ,"not found")
 	sys.exit()
 
 def extendEnv(ids, vals, env):
@@ -76,7 +76,7 @@ def evalplus(pt,env):
 		#print(a.getLexval()+b.getLexval())
 		return lexer.lexeme(types.INTEGER,a.getLexval()+b.getLexval())
 	else:
-		showerror("+ not compatible")
+		showerror("Error : Cannot add "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evalminus(pt,env):
 	#print(pt.left.left.getLextype())
@@ -88,12 +88,12 @@ def evalminus(pt,env):
 			#print(a.getLexval()+b.getLexval())
 			return lexer.lexeme(types.INTEGER,a.getLexval()-b.getLexval())
 		else:
-			showerror("- not compatible")
+			showerror("Error : Cannot subtract "+ a.getLextype()+ " with "+ b.getLextype())
 	else:
 		if (a.getLextype() == "INTEGER"):
 			return lexer.lexeme(types.INTEGER,-a.getLexval())
 		else:
-			showerror("Should be a Integer")
+			showerror("Error: Should be a Integer")
 
 def evaldivide(pt,env):
 	a = eval(pt.left,env)
@@ -103,7 +103,7 @@ def evaldivide(pt,env):
 			showerror("Error: divide by zero")
 		return lexer.lexeme(types.INTEGER,a.getLexval()/b.getLexval())
 	else:
-		showerror("/ not compatible")
+		showerror("Error : Cannot divide "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evaltimes(pt,env):
 	#print("evaltimes a = ",pt.left.getLextype(),pt.left.getLexval())
@@ -114,7 +114,7 @@ def evaltimes(pt,env):
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
 		return lexer.lexeme(types.INTEGER,a.getLexval()*b.getLexval())
 	else:
-		showerror("* not compatible")
+		showerror("Error : Cannot multiply "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evalmod(pt,env):
 	a = eval(pt.left,env)
@@ -122,7 +122,7 @@ def evalmod(pt,env):
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
 		return lexer.lexeme(types.INTEGER,a.getLexval()%b.getLexval())
 	else:
-		showerror("% not compatible")
+		showerror("Error : Cannot mod "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evalgreaterthan(pt,env):
 	a = eval(pt.left,env)
@@ -130,7 +130,7 @@ def evalgreaterthan(pt,env):
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
 		return lexer.lexeme(types.INTEGER,a.getLexval()>b.getLexval())
 	else:
-		showerror("> not compatible")
+		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evalgreaterthanequalto(pt,env):
 	a = eval(pt.left,env)
@@ -138,29 +138,33 @@ def evalgreaterthanequalto(pt,env):
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
 		return lexer.lexeme(types.INTEGER,a.getLexval()>=b.getLexval())
 	else:
-		showerror(">= not compatible")
+		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evallessthan(pt,env):
 	a = eval(pt.left,env)
 	b = eval(pt.right,env)
 	if (a.getLextype() == b.getLextype()):
-		if(a.getLextype()=="INTEGER" or a,getLextype()=="STRING"):
+		if(a.getLextype()=="INTEGER" or a.getLextype()=="STRING"):
 			return lexer.lexeme(types.INTEGER,a.getLexval()<b.getLexval())
 		else:
-			showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
+			showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
+			#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
 	else:
-		showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
+		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
+		#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
 
 def evallessthanequalto(pt,env):
 	a = eval(pt.left,env)
 	b = eval(pt.right,env)
 	if (a.getLextype() == b.getLextype()):
-		if(a.getLextype()=="INTEGER" or a,getLextype()=="STRING"):
+		if(a.getLextype()=="INTEGER" or a.getLextype()=="STRING"):
 			return lexer.lexeme(types.INTEGER,a.getLexval()<=b.getLexval())
 		else:
-			showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
+			showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
+			#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
 	else:
-		showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
+		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
+		#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
 
 def evalequalto(pt,env):
 	a = eval(pt.left,env)
@@ -185,6 +189,7 @@ def evaland(pt,env):
 
 def showerror(msg):
 	print(msg)
+	#print(lexer.lexer.lineNumber)
 	sys.exit()
 
 def evalarray(pt,env):
@@ -196,6 +201,18 @@ def evalarray(pt,env):
 		next = next.right
 	return array
 
+def stripParams(pt):
+	if (pt.left == None):
+		return pt
+	elif(pt.left.getLextype()=="OPAREN"):
+		a = pt.left.left
+	elif(pt.left.getLextype()=="ID"):
+		a = pt.left
+	if (pt.right != None):
+		b = stripParams(pt.right)
+	else:
+		b=None
+	return cons(types.JOIN,a,b)
 
 def evalfunctionDefination(pt,env):
 	closure = lexer.lexeme(types.CLOSURE,None)
@@ -205,29 +222,48 @@ def evalfunctionDefination(pt,env):
 
 def evalfunctioncall(pt,env):
 	arglist = pt.right.right
-	evaluatedArgs = evalargumentList(arglist,env)
 	functionName = pt.right.left
 	closure = lookup(functionName,env)
 	if(closure.getLextype()=="BUILTIN"):
-		return evalBuiltin(closure,evaluatedArgs,env)
+		return evalBuiltin(closure,arglist,env)
 	parameterlist = closure.right.left
+	evaluatedArgs = evalargumentList(arglist,parameterlist,env)
+	eparam = stripParams(parameterlist)
 	definingEnv = closure.left
-	newEnv = extendEnv(parameterlist,evaluatedArgs,definingEnv) #CHANGE TO env FOR DYNAMIC SCOPE
+	newEnv = extendEnv(eparam,evaluatedArgs,definingEnv) #CHANGE TO env FOR DYNAMIC SCOPE
 	functionbody = closure.right.right.left
+	insert(lexer.lexeme(types.ID,"this"),newEnv,newEnv)
 	return eval(functionbody,newEnv)
 
-def evalBuiltin(builtinfunc,evaluatedargs,env):
+def evalBuiltin(builtinfunc,arglist,env):
+	evaluatedArgs = evalargumentListforBuiltIn(arglist,env)
 	name = builtinfunc.getLexval()
-	if (name == "SHOW"):
-		return evalShow(evaluatedargs)
+	if (name == "PRINTLN"):
+		return evalPrintln(evaluatedArgs)
+	if (name == "PRINT"):
+		return evalPrint(evaluatedArgs)
 	elif(name == "LEN"):
-		return evalLen(evaluatedargs)
+		return evalLen(evaluatedArgs)
+	elif(name == "GET_INTEGER"):
+		return evalGetInteger(evaluatedArgs)
 
-def evalShow(evaluatedArgs):
+def evalGetInteger(evaluatedArgs):
+	#print(evaluatedArgs.left.getLextype())
+	return lexer.lexeme(types.INTEGER,int(evaluatedArgs.left.getLexval()))
+
+def evalPrintln(evaluatedArgs):
+	if(evaluatedArgs.left==None):
+		print("\n")
+	else:
+		while(evaluatedArgs!=None):
+			print(evaluatedArgs.left.getLexval(),end='')
+			evaluatedArgs=evaluatedArgs.right
+		print()
+
+def evalPrint(evaluatedArgs):
 	while(evaluatedArgs!=None):
 		print(evaluatedArgs.left.getLexval(),end='')
 		evaluatedArgs=evaluatedArgs.right
-	print()
 
 def evalLen(evaluatedArgs):
 	#print(evaluatedArgs.left.getLextype())
@@ -236,11 +272,30 @@ def evalLen(evaluatedArgs):
 	else:
 		showerror("Argument should be an array")
 
-def evalargumentList(pt,env):
+def evalargumentListforBuiltIn(pt,env):
+	a = None
 	if(pt.left!=None):
 		a =eval(pt.left,env)
 	if(pt.right!=None):
-		b= eval(pt.right,env)
+		b= evalargumentListforBuiltIn(pt.right,env)
+	else:
+		b=None
+	return cons(types.JOIN,a,b)
+
+def evalargumentList(args,params,env):
+	if(args.left!=None and params.left!=None):
+		if(params.left.getLextype()=="OPAREN"):
+			a = lexer.lexeme(types.THUNK,None)
+			a.left = args.left
+			a.right = env
+		else:
+			a = eval(args.left,env)
+	if(args.left == None and params.left!= None):
+		showerror("Error: Too few Arguments to the function..")
+	elif(args.right != None and params.right== None):
+		showerror("Error: Too many Arguments to the function..")
+	elif(args.right != None and params.right!= None):
+		b= evalargumentList(args.right,params.right,env)
 	else:
 		b=None
 	return cons(types.JOIN,a,b)
@@ -281,8 +336,8 @@ def evalcollectionaccess(pt,env): #need to work on dictionary
 
 def evalcollectionupdate(pt,env):
 	idname = pt.left
-	index = pt.right.left
-	newvalue = pt.right.right.left
+	index = eval(pt.right.left,env)
+	newvalue = eval(pt.right.right.left,env)
 	collection = lookup(idname,env)
 	if(collection.getLextype()=="ARRAY"):
 		if(index.getLextype()=="INTEGER"):
@@ -300,9 +355,10 @@ def evalarrayappend(pt,env):
 
 def evallambdacall(pt,env):
 	arglist = pt.right.left
-	evaluatedArgs = evalargumentList(arglist,env)
 	parameterlist = pt.right.right.left
-	newEnv = extendEnv(parameterlist,evaluatedArgs,env)
+	evaluatedArgs = evalargumentList(arglist,parameterlist,env)
+	eparam = stripParams(parameterlist)
+	newEnv = extendEnv(eparam,evaluatedArgs,env)
 	body = pt.right.right.right.left
 	return eval(body,newEnv)
 
@@ -312,6 +368,12 @@ def evallambda(pt,env):
 	closure.left = env
 	return closure
 
+def evalDispatch(pt,env):
+	obj = eval(pt.right.left,env)
+	x = eval(pt.right.right,obj)
+	#print(x.getLextype())
+	return x
+
 def eval(pt,env):
 	if(pt == None):
 		return
@@ -320,7 +382,18 @@ def eval(pt,env):
 	elif (pt.getLextype()== "STRING"):
 		return pt
 	elif (pt.getLextype() == "ID"):
-		return lookup(pt,env)
+		x = lookup(pt,env)
+		if (x.getLextype()=="THUNK"):
+			y = eval(x,env)
+			#x.left = y;
+			#x.lex_type = "THUNKED"
+			return y
+		else: 
+			return x
+	# elif (pt.getLextype()=="THUNKED"):
+	# 	return pt.left
+	elif (pt.getLextype()=="DISPATCH"):
+		return evalDispatch(pt,env)
 	elif (pt.getLextype()== "ASSIGN"):
 		assign(pt,env)
 	elif (pt.getLextype() == "PLUS"):
@@ -352,27 +425,29 @@ def eval(pt,env):
 	elif (pt.getLextype() == "VAR"):
 		insert(pt.left,eval(pt.right,env),env)
 	elif (pt.getLextype() == "ARRAY"):
-		return evalarray(pt,env);
+		return evalarray(pt,env)
 	elif (pt.getLextype() == "LAMBDACALL"):
 		return evallambdacall(pt,env)		
 	elif (pt.getLextype() == "LAMBDA"):
 		return evallambda(pt,env)			
 	elif (pt.getLextype() == "FUNCDEF"):
-		evalfunctionDefination(pt,env);
+		evalfunctionDefination(pt,env)
 	elif (pt.getLextype() == "FUNCTIONCALL"):
-		return evalfunctioncall(pt,env);
+		return evalfunctioncall(pt,env)
 	elif (pt.getLextype() == "ARGUMENTLIST"):
-		return evalargumentList(pt,env);
+		return evalargumentList(pt,env)
 	elif (pt.getLextype() == "IF"):
 		return evalif(pt,env);
 	elif (pt.getLextype() == "WHILE"):
-		return evalwhileloop(pt,env);
+		return evalwhileloop(pt,env)
 	elif (pt.getLextype() == "COLLECTIONACCESS"):
 		return evalcollectionaccess(pt,env);
 	elif (pt.getLextype() == "COLLECTIONUPDATE"):
 		return evalcollectionupdate(pt,env);
 	elif (pt.getLextype() == "ARRAYAPPEND"):
-		return evalarrayappend(pt,env);
+		return evalarrayappend(pt,env)
+	elif (pt.getLextype() == "THUNK"):
+		return eval (pt.left,pt.right)
 	#elif (pt.getLextype() == "ARRAYLENGTH"):
 	#	return evalarraylength(pt,env);
 	elif (pt.getLextype()=="OPAREN"):

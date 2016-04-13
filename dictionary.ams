@@ -1,0 +1,171 @@
+define node(key,value,left,right,height){
+	this;
+}
+define getheight(tree){
+	if(tree == "None"){
+		0;
+	}
+	else{
+		tree.height;
+	}
+}
+define max(a,b){
+	if(a>b){
+	a;
+	}
+	else{
+	b;
+	}
+}
+
+define getBalance(tree){
+	if (tree == "None"){
+		0;
+	}
+	getheight(tree.left)-getheight(tree.right);
+}
+
+define rightRotate(tree){
+	var lefttree = tree.left;
+	var righttree = lefttree.right;
+	lefttree.right = tree;
+	tree.left = righttree;
+	tree.height = max(getheight(tree.left),getheight(tree.right))+1;
+	lefttree.height = max(getheight(lefttree.left),getheight(lefttree.right))+1;
+	lefttree;
+}
+
+define leftRotate(tree){
+	var righttree = tree.right;
+	var lefttree = righttree.left;
+	righttree.left = tree;
+	tree.right = lefttree;
+	tree.height = max(getheight(tree.left),getheight(tree.right))+1;
+	righttree.height = max(getheight(righttree.left),getheight(righttree.right))+1;
+	righttree;
+}
+
+define insert(k,v,tree){
+	if(tree=="None"){
+		node(k,v,"None","None",1);
+	}
+	else if (k < tree.key){
+		tree.left = insert(k,v,tree.left);
+		tree.height = max(getheight(tree.left),getheight(tree.right)) + 1;
+		var balance = getBalance(tree);
+		var lefttree= tree.left;
+		var righttree= tree.right;
+		if (balance > 1){
+			if(lefttree!="None"){
+				if(k < lefttree.key){
+					rightRotate(tree);
+				}
+				else if (k > lefttree.key){
+					tree.left = leftRotate(tree.left);
+					rightRotate(tree);
+				}
+			}
+			else{
+				tree;
+			}			
+		}
+		else if (balance < -1){
+			if(righttree!="None"){
+				if(k < righttree.key){
+					tree.right = rightRotate(tree.right);
+					leftRotate(tree);
+				}
+				else if (k > righttree.key){
+					leftRotate(tree);
+				}
+			}
+			else{
+				tree;
+			}			
+		}
+		else{
+			tree;
+		}
+	}
+	else if (k > tree.key){
+		tree.right = insert(k,v,tree.right);
+		tree.height = max(getheight(tree.left),getheight(tree.right)) + 1;
+		var balance = getBalance(tree);
+		var lefttree= tree.left;
+		var righttree= tree.right;
+		if (balance > 1){
+			if(lefttree!="None"){
+				if(k < lefttree.key){
+					rightRotate(tree);
+				}
+				else if (k > lefttree.key){
+					tree.left = leftRotate(tree.left);
+					rightRotate(tree);
+				}
+			}
+			else{
+				tree;
+			}			
+		}
+		else if (balance < -1){
+			if(righttree!="None"){
+				if(k < righttree.key){
+					tree.right = rightRotate(tree.right);
+					leftRotate(tree);
+				}
+				else if (k > righttree.key){
+					leftRotate(tree);
+				}
+			}
+			else{
+				tree;
+			}			
+		}
+		else{
+			tree;
+		}
+	}
+	else {
+		tree;
+	}
+}
+define preOrder(tree){
+	if(tree != "None"){
+		println(tree.key);
+		preOrder(tree.left);
+		preOrder(tree.right);
+	}
+}
+define searchinDictionary(key,tree){
+	if(tree == "None"){
+		println("key ",key," is not in the Dictionary..");
+	}
+	else if(key == tree.key){
+		println("{ key: ",tree.key," Value: ",tree.value," }");
+	}
+	else if (key < tree.key){
+		searchinDictionary(key,tree.left);
+	}
+	else if (key > tree.key){
+		searchinDictionary(key,tree.right);
+	}
+}
+
+var a = insert(10,"Ram","None");
+ a = insert(20,"Shyam",a);
+ a = insert(30,"Hari",a);
+ a = insert(40,"Mohan",a);
+ a = insert(50,"Gita",a);
+ a = insert(25,"Sita",a);
+
+#preOrder(a);
+searchinDictionary(10,a);
+searchinDictionary(20,a);
+searchinDictionary(25,a);
+searchinDictionary(30,a);
+searchinDictionary(40,a);
+searchinDictionary(50,a);
+searchinDictionary(30,a);
+searchinDictionary(60,a);
+
+

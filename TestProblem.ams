@@ -1,0 +1,37 @@
+var y = 3;
+define test(x){
+	y = 5;
+}
+##define node(x,y,z){
+	var a = x+y;
+	define helper(m,n){
+		m*n;
+	}
+	this;
+}
+
+var test = node(3,4,5);
+println(test.x, " ", test.y, " ",test.z," ",test.a);
+var func = test.helper;
+println(func(3,4));##
+define make_list(first,rest){
+		this;
+	}
+define cons(a b){
+	 
+}
+
+define make_wire(){
+	var signal = 0;
+	var end_points = make_list("None","None");
+	define set(v){
+		if(v!=signal){
+			signal = v;
+			run_All(end_points);
+		}
+	}
+	define add(f){
+
+	}
+
+}

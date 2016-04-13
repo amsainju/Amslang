@@ -126,7 +126,6 @@ class lexer:
         if(ch.isdigit()):
             return self.lexNumber(ch)
         else:
-            #print("ch=",ch)
             return lexeme(types.BADCHARACTER,ch)       
                                                     
                                                    
@@ -149,13 +148,10 @@ class lexer:
             ch = self.getCharacter()
         self.pushbackOneCharacter(ch)  
         if (buffer in keywords):
-            #print("buffer =",buffer.upper())
             if (buffer.upper() == "DEFINE"):
                 return lexeme(types.DEFINE,None)
             elif (buffer.upper() == "LAMBDA"):
                 return lexeme(types.LAMBDA,None)
-            #elif (buffer.upper() == "PRINT"):
-             #   return lexeme(types.PRINT,None)
             elif (buffer.upper() == "ELSE"):
                 return lexeme(types.ELSE,None)
             elif (buffer.upper() == "IF"):
@@ -164,8 +160,6 @@ class lexer:
                 return lexeme(types.WHILE,None)
             elif (buffer.upper() == "OR"):
                 return lexeme(types.OR,None)  
-            #elif (buffer.upper() == "INPUT"):
-            #    return lexeme(types.INPUT,None)
             elif (buffer.upper() == "APPEND"):
                 return lexeme(types.APPEND,None)
             elif (buffer.upper() == "AND"):
@@ -185,7 +179,6 @@ class lexer:
                 ch= self.getCharacter()
             buffer+= ch
             ch = self.getCharacter()
-        #print(buffer)
         return lexeme(types.STRING,buffer)
     
     def lex(self):

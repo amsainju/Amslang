@@ -24,7 +24,6 @@ def lookup(ide,env):
 		return lexer.lexeme(types.BUILTIN,ide.getLexval().upper())
 	ids = env.left
 	vals = env.right.left
-	#outerenv = env.right.right.left
 	while (env != None):
 		while (ids != None):
 			if (ide.getLexval() == ids.left.getLexval()):
@@ -43,13 +42,21 @@ def extendEnv(ids, vals, env):
 	return cons(types.ENVIRONMENT,ids, cons(types.JOIN,vals,cons(types.JOIN, env,None)))
 
 def assign(tree,env):
-	return updateEnv(tree.left, eval(tree.right,env),env)   
-	#print(newenv.right.left.getLextype())
+	return updateEnv(tree.left, eval(tree.right,env),env)
+
+def evalDispatchAssign(tree,env):
+	idname = tree.left
+	obj = eval(idname,env)
+	return updateEnv(tree.right.left, eval(tree.right.right,env),obj)
+
+	# def evalDispatch(pt,env):
+	# obj = eval(pt.right.left,env)
+	# x = eval(pt.right.right,obj)
+	# return x
 
 def updateEnv(ide,val,env):
 	ids = env.left
 	vals = env.right.left
-	#outerenv = env.right.right.left
 	while (env != None):
 		while (ids != None):
 			if (ide.getLexval() == ids.left.getLexval()):
@@ -66,12 +73,8 @@ def updateEnv(ide,val,env):
 	sys.exit()
 
 def evalplus(pt,env):
-	#print(pt.left.left.getLextype())
-	#print(pt.left.getLextype());
 	a = eval(pt.left,env)
 	b = eval(pt.left.left,env)
-	#print(a.getLexval()," and ",b.getLexval())
-	#print(pt.left.getLextype())
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
 		#print(a.getLexval()+b.getLexval())
 		return lexer.lexeme(types.INTEGER,a.getLexval()+b.getLexval())
@@ -79,13 +82,10 @@ def evalplus(pt,env):
 		showerror("Error : Cannot add "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evalminus(pt,env):
-	#print(pt.left.left.getLextype())
 	a = eval(pt.left,env)
 	if(pt.left.left!=None):
 		b = eval(pt.left.left,env)
-		#print(pt.left.getLextype())
 		if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
-			#print(a.getLexval()+b.getLexval())
 			return lexer.lexeme(types.INTEGER,a.getLexval()-b.getLexval())
 		else:
 			showerror("Error : Cannot subtract "+ a.getLextype()+ " with "+ b.getLextype())
@@ -106,9 +106,6 @@ def evaldivide(pt,env):
 		showerror("Error : Cannot divide "+ a.getLextype()+ " with "+ b.getLextype())
 
 def evaltimes(pt,env):
-	#print("evaltimes a = ",pt.left.getLextype(),pt.left.getLexval())
-	#print("evaltimes b = ",pt.left.left.getLextype(),pt.left.left.getLexval())
-	#lookupENV(env)
 	a = eval(pt.left,env)
 	b = eval(pt.left.left,env)
 	if (a.getLextype() == "INTEGER" and b.getLextype() == "INTEGER"):
@@ -148,10 +145,8 @@ def evallessthan(pt,env):
 			return lexer.lexeme(types.INTEGER,a.getLexval()<b.getLexval())
 		else:
 			showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
-			#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
 	else:
 		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
-		#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for < comparision")
 
 def evallessthanequalto(pt,env):
 	a = eval(pt.left,env)
@@ -161,10 +156,8 @@ def evallessthanequalto(pt,env):
 			return lexer.lexeme(types.INTEGER,a.getLexval()<=b.getLexval())
 		else:
 			showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
-			#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
 	else:
 		showerror("Error : Cannot compare "+ a.getLextype()+ " with "+ b.getLextype())
-		#showerror(a.getLextype()+" and "+b.getLextype()+" not compatible for <= comparision")
 
 def evalequalto(pt,env):
 	a = eval(pt.left,env)
@@ -189,7 +182,6 @@ def evaland(pt,env):
 
 def showerror(msg):
 	print(msg)
-	#print(lexer.lexer.lineNumber)
 	sys.exit()
 
 def evalarray(pt,env):
@@ -248,7 +240,6 @@ def evalBuiltin(builtinfunc,arglist,env):
 		return evalGetInteger(evaluatedArgs)
 
 def evalGetInteger(evaluatedArgs):
-	#print(evaluatedArgs.left.getLextype())
 	return lexer.lexeme(types.INTEGER,int(evaluatedArgs.left.getLexval()))
 
 def evalPrintln(evaluatedArgs):
@@ -266,7 +257,6 @@ def evalPrint(evaluatedArgs):
 		evaluatedArgs=evaluatedArgs.right
 
 def evalLen(evaluatedArgs):
-	#print(evaluatedArgs.left.getLextype())
 	if(evaluatedArgs.left.getLextype()=="ARRAY"):
 		return lexer.lexeme(types.INTEGER,len(evaluatedArgs.left.getLexval()))
 	else:
@@ -371,7 +361,6 @@ def evallambda(pt,env):
 def evalDispatch(pt,env):
 	obj = eval(pt.right.left,env)
 	x = eval(pt.right.right,obj)
-	#print(x.getLextype())
 	return x
 
 def eval(pt,env):
@@ -385,15 +374,13 @@ def eval(pt,env):
 		x = lookup(pt,env)
 		if (x.getLextype()=="THUNK"):
 			y = eval(x,env)
-			#x.left = y;
-			#x.lex_type = "THUNKED"
 			return y
 		else: 
 			return x
-	# elif (pt.getLextype()=="THUNKED"):
-	# 	return pt.left
 	elif (pt.getLextype()=="DISPATCH"):
 		return evalDispatch(pt,env)
+	elif (pt.getLextype()=="DISPATCHASSIGN"):
+		evalDispatchAssign(pt,env)
 	elif (pt.getLextype()== "ASSIGN"):
 		assign(pt,env)
 	elif (pt.getLextype() == "PLUS"):
@@ -448,8 +435,6 @@ def eval(pt,env):
 		return evalarrayappend(pt,env)
 	elif (pt.getLextype() == "THUNK"):
 		return eval (pt.left,pt.right)
-	#elif (pt.getLextype() == "ARRAYLENGTH"):
-	#	return evalarraylength(pt,env);
 	elif (pt.getLextype()=="OPAREN"):
 		return eval(pt.right,env)                     #expression added to right of oparen because in left the expresion chain is developed
 	elif (pt.getLextype() == "STATEMENT"):
@@ -461,65 +446,65 @@ def eval(pt,env):
 			return returnval
 
 
-def lookupENV(env):   #for testing
-	print("Listing ENVIRONMENT...")
-	ids = env.left
-	vals = env.right.left
-	#outerenv = env.right.right.left
-	while (env != None):
-		while (ids != None):
-			if(vals.left != None and vals.left.getLextype()=="ARRAY"):
-				print(ids.left.getLexval(), "= ",end="")
-				print(vals.left.lex_val,sep=',')
-			elif (vals.left != None and vals.left.getLextype()=="CLOSURE"):   #preety printing function
-				print(ids.left.getLexval()+"(",end="")
-				parameters = vals.left.right.left
-				while(parameters!=None):
-					if(parameters.right!=None):
-						print(parameters.left.getLexval()+",",end="")
-					else:
-						print(parameters.left.getLexval()+")")
-					parameters=parameters.right
-				block = vals.left.right.right.left #need to print the intendlevel keep track of indentation level so if another block is enocunter tab is printed
-				block.indent = block.indent+4
-				print("{")
-				preetyprint(block)
-				print("}")
+# def lookupENV(env):   #for testing
+# 	print("Listing ENVIRONMENT...")
+# 	ids = env.left
+# 	vals = env.right.left
+# 	#outerenv = env.right.right.left
+# 	while (env != None):
+# 		while (ids != None):
+# 			if(vals.left != None and vals.left.getLextype()=="ARRAY"):
+# 				print(ids.left.getLexval(), "= ",end="")
+# 				print(vals.left.lex_val,sep=',')
+# 			elif (vals.left != None and vals.left.getLextype()=="CLOSURE"):   #preety printing function
+# 				print(ids.left.getLexval()+"(",end="")
+# 				parameters = vals.left.right.left
+# 				while(parameters!=None):
+# 					if(parameters.right!=None):
+# 						print(parameters.left.getLexval()+",",end="")
+# 					else:
+# 						print(parameters.left.getLexval()+")")
+# 					parameters=parameters.right
+# 				block = vals.left.right.right.left #need to print the intendlevel keep track of indentation level so if another block is enocunter tab is printed
+# 				block.indent = block.indent+4
+# 				print("{")
+# 				preetyprint(block)
+# 				print("}")
 
-				block.indent = block.indent-4
-			else:
-				print (ids.left.getLexval(), "=", vals.left.getLexval())  #need to change if type changes like arrray
-			ids = ids.right
-			vals = vals.right
-			if (ids == None and env.right.right.left != None):                    # checking in outer scope
-				env = env.right.right.left
-				ids = env.left
-				vals = env.right.left
-		env = env.right.right.left   #outer env
-	print ("ENVIRONMENT ends...")
+# 				block.indent = block.indent-4
+# 			else:
+# 				print (ids.left.getLexval(), "=", vals.left.getLexval())  #need to change if type changes like arrray
+# 			ids = ids.right
+# 			vals = vals.right
+# 			if (ids == None and env.right.right.left != None):                    # checking in outer scope
+# 				env = env.right.right.left
+# 				ids = env.left
+# 				vals = env.right.left
+# 		env = env.right.right.left   #outer env
+# 	print ("ENVIRONMENT ends...")
 
 
 
-def preetyprint(tree):
-	if(tree == None):
-		return
-	elif(tree.getLextype()=="STATEMENT"):
-		printindent(tree.indent)
-		preetyprint(tree.left)
-		print(";")
-		preetyprint(tree.right)
-	elif(tree.getLextype()=="TIMES"):
-		preetyprint(tree.left)
-		print("*",end='')
-		preetyprint(tree.left.left)
-	elif(tree.getLextype()=="ID"):
-		print(tree.getLexval(),end='')
+# def preetyprint(tree):
+# 	if(tree == None):
+# 		return
+# 	elif(tree.getLextype()=="STATEMENT"):
+# 		printindent(tree.indent)
+# 		preetyprint(tree.left)
+# 		print(";")
+# 		preetyprint(tree.right)
+# 	elif(tree.getLextype()=="TIMES"):
+# 		preetyprint(tree.left)
+# 		print("*",end='')
+# 		preetyprint(tree.left.left)
+# 	elif(tree.getLextype()=="ID"):
+# 		print(tree.getLexval(),end='')
 
-def printindent(tempindent):
-	#tempindent = indent;
-	while(tempindent!=0):
-		print(" ",end='')
-		tempindent=tempindent-1
+# def printindent(tempindent):
+# 	#tempindent = indent;
+# 	while(tempindent!=0):
+# 		print(" ",end='')
+# 		tempindent=tempindent-1
 
 
 

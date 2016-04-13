@@ -1,5 +1,5 @@
 #error3
 var a = 1;
 var b = 2;
-var c = a + m;    # Error : Expecting SEMI got ID
+var c = a + m;    # Error : Identifier m not found
 show("c =", c);

@@ -32,7 +32,6 @@ class cparser:
 
     def matchNoAdvance(self,ltype):
         if not (self.check(ltype)):
-            #print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got TYPE: ", self.pending.getLextype(), "Got Value: ",self.pending.getLexval())
             print("Error in Line Number ",self.oLexer.lineNumber, "Expecting: ",ltype, "Got : ", self.pending.getLextype())
             sys.exit()
 
@@ -52,49 +51,9 @@ class cparser:
         elif (self.functionDefPending()):
             return self.getFunctionDef()
         elif (self.varPending()):
-            return self.getVariableDefination()
-        if(self.idPending()):
-            idname = self.match(types.ID)
-            if (self.check(types.ASSIGN)):
-                assign = self.match(types.ASSIGN)
-                if(self.expressionPending()):   #variable decleration and defination and update
-                    expr = self.getExpression(None)
-                    self.match(types.SEMI)
-                    assign.left = idname
-                    assign.right = expr
-                    return assign
-            elif (self.check(types.OSQBRACE)):    #Array or Dictionary update
-                self.match(types.OSQBRACE)
-                pos = self.getExpression(None)
-                self.match(types.CSQBRACE)
-                if(self.check(types.ASSIGN)):
-                    self.match(types.ASSIGN)
-                    newvalue= self.getExpression(None)
-                    self.match(types.SEMI)
-                else:
-                    self.match(types.SEMI)
-                    return helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,idname,pos))
-                return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,pos, helper.cons(types.JOIN, newvalue,None)))
-            elif (self.check(types.DOT)):
-                self.match(types.DOT)
-                if (self.check(types.APPEND)):
-                    self.match(types.APPEND)
-                    self.match(types.OPAREN)
-                    expr = self.getExpression(None)
-                    self.match(types.CPAREN)
-                    self.match(types.SEMI)
-                    return helper.cons(types.ARRAYAPPEND,idname,expr)
-                else:
-                    variable = self.match(types.ID)    
-                    self.match(types.SEMI)                      #need to modify this
-                    return helper.cons(types.DISPATCH,None,helper.cons(types.JOIN,idname,variable))
-                    
-            else:
-                expr =  self.getExpression(idname)
-                self.match(types.SEMI)
-                return expr
+            return self.getVariableDefination()  
         else:
-            expr = self.getExpression(None)
+            expr = self.getExpression()
             self.match(types.SEMI)
             return expr
 
@@ -112,18 +71,8 @@ class cparser:
             var.left = idname
             var.right = newarray
             return var
-        elif (self.check(types.OBRACE)): #Dictionary defination
-            self.match(types.OBRACE)
-            optDictItems = self.getOptDictItems()
-            self.match(types.CBRACE)
-            newdict = lexer.lexeme(types.DICTIONARY,None)
-            self.match(types.SEMI)
-            newdict.left = optDictItems
-            var.left = idnmane
-            var.right = newdict
-            return var
         else:
-            expr = self.getExpression(None)
+            expr = self.getExpression()
             self.match(types.SEMI)
             var.left = idname
             var.right = expr
@@ -133,7 +82,7 @@ class cparser:
     def getIfStatement(self):
         ifstatement = self.match(types.IF)
         self.match(types.OPAREN)
-        expr = self.getExpression(None)
+        expr = self.getExpression()
         self.match(types.CPAREN)
         self.match(types.OBRACE)
         block = self.getBlock()
@@ -158,7 +107,7 @@ class cparser:
     def getWhileStatement(self):
         whilestatement = self.match(types.WHILE)
         self.match(types.OPAREN)
-        expr = self.getExpression(None)
+        expr = self.getExpression()
         self.match(types.CPAREN)
         self.match(types.OBRACE)
         block = self.getBlock()
@@ -195,7 +144,6 @@ class cparser:
             a.left = idname
         else:
             a = self.match(types.ID)
-        #print("a=",a.getLextype())
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getIdentifierList()
@@ -212,7 +160,7 @@ class cparser:
             return lexer.lexeme(types.ARGUMENTLIST,None)
 
     def getArgumentList(self):
-        a = self.getExpression(None)
+        a = self.getExpression()
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArgumentList()
@@ -220,16 +168,16 @@ class cparser:
             b = None
         return helper.cons(types.ARGUMENTLIST,a,b)
 
-    def getExpression(self,first):
-        expr =self.getArithematicExpression(first)
+    def getExpression(self):
+        expr =self.getExpression1()
         if(self.comparisonPending()):
             comp = self.getComparison()
-            expr2 = self.getArithematicExpression(None)
+            expr2 = self.getExpression1()
             comp.left=expr
             comp.right= expr2
             if(self.gatePending()):
                 gate = self.getGate()
-                expr3 = self.getExpression(None)
+                expr3 = self.getExpression()
                 gate.left=comp
                 gate.right=expr3
                 return gate
@@ -237,30 +185,47 @@ class cparser:
                 return comp
         else:
             return expr
-
-
-    def getArithematicExpression(self,first):
-        if(first):
-            a = first
-            if(self.check(types.OPAREN) or self.check(types.OSQBRACE)):
-                if(self.check(types.OPAREN)):
-                    self.match(types.OPAREN)
-                    optArgList = self.getOptArgumentList()
-                    self.match(types.CPAREN)
-                    a = helper.cons(types.FUNCTIONCALL,None,helper.cons(types.JOIN,first,optArgList))
-                elif (self.check(types.OSQBRACE)):
-                    self.match(types.OSQBRACE)
-                    expr = self.getExpression(None)
-                    self.match(types.CSQBRACE)
-                    a = helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,first,expr))
-        else:
-            a = self.getPrimary()
+            
+    def getExpression1(self):
+        a = self.getPrimary()
+        if(a.getLextype()== "ID" or a.getLextype()=="COLLECTIONACCESS"):
+            if(a.getLextype() == "COLLECTIONACCESS"):
+                if(self.check(types.ASSIGN)):
+                    self.match(types.ASSIGN)
+                    expr = self.getExpression()
+                    pos = a.right.right
+                    idname = a.right.left
+                    return helper.cons(types.COLLECTIONUPDATE,idname,helper.cons(types.JOIN,pos, helper.cons(types.JOIN, expr,None)))
+            elif(a.getLextype()=="ID"):
+                if(self.check(types.ASSIGN)):
+                    assign = self.match(types.ASSIGN)
+                    expr = self.getExpression()
+                    assign.left = a
+                    assign.right = expr
+                    return assign
+                if(self.check(types.DOT)):
+                    self.match(types.DOT)
+                    if(self.check(types.APPEND)):
+                        self.match(types.APPEND)
+                        self.match(types.OPAREN)
+                        expr = self.getExpression()
+                        self.match(types.CPAREN)
+                        return helper.cons(types.ARRAYAPPEND,a,expr)
+                    elif(self.idPending()):
+                        variable = self.match(types.ID)
+                        idname = a
+                        a = helper.cons(types.DISPATCH,None,helper.cons(types.JOIN,idname,variable))
+                        if (self.check(types.ASSIGN)):
+                            self.match(types.ASSIGN)
+                            expr = self.getExpression()
+                            return helper.cons(types.DISPATCHASSIGN,idname,helper.cons(types.JOIN,variable,expr))
+                    else:
+                        helper.showerror("Error: Expecting ID got ",self.pending.getLextype())
         if(self.opPending()):
             b = self.getOP()
-            c = self.getArithematicExpression(None)
+            c = self.getExpression1()
             if (c == None):
-                print("Error in LineNumber:", self.oLexer.lineNumber,"Expecting an Expression after", b.getLextype())
-                sys.exit()
+                helper.showerror("Error in LineNumber: "+ self.oLexer.lineNumber+" Expecting an Expression after "+ b.getLextype())
             b.left = a
             a.left = c
             return b
@@ -277,13 +242,9 @@ class cparser:
                 return helper.cons(types.FUNCTIONCALL,None,helper.cons(types.JOIN,idname,optArgList))
             elif (self.check(types.OSQBRACE)):
                 self.match(types.OSQBRACE)
-                expr = self.getExpression(None)
+                expr = self.getExpression()
                 self.match(types.CSQBRACE)
                 return helper.cons(types.COLLECTIONACCESS,None,helper.cons(types.JOIN,idname,expr))
-            elif (self.check(types.DOT)):
-                self.match(types.DOT)
-                variable = self.match(types.ID)    
-                return helper.cons(types.DISPATCH,None,helper.cons(types.JOIN,idname,variable))
             else:
                 return idname
         elif (self.stringPending()):
@@ -299,29 +260,12 @@ class cparser:
             return sign
         elif (self.check(types.OPAREN)):
             oparen = self.match(types.OPAREN)
-            parenExpr = self.getExpression(None)
+            parenExpr = self.getExpression()
             self.match(types.CPAREN)
             oparen.right = parenExpr
             return oparen
         else:
             return None
-
-    # def getlambda(self):
-    #     self.match(types.LAMBDA)
-    #     self.match(types.OPAREN)
-    #     optIdList = self.getOptIdentifierList()
-    #     self.match(types.CPAREN)
-    #     self.match(types.COLON)
-    #     self.match(types.OPAREN)
-    #     expr = self.getExpression(None)
-    #     self.match(types.CPAREN)
-    #     if (self.check(types.OPAREN)):
-    #         self.match(types.OPAREN)
-    #         arglist = self.getArgumentList()
-    #         self.match(types.CPAREN)
-    #         return helper.cons(types.LAMBDACALL,None,helper.cons(types.JOIN,optIdList,helper.cons(types.JOIN,expr,helper.cons(types.JOIN,arglist,None))));
-    #     else:
-    #         return helper.cons(types.LAMBDA,None,helper.cons(types.JOIN,optIdList,helper.cons(types.JOIN,expr,None)));
 
     def getlambda(self):
         self.match(types.LAMBDA)
@@ -343,7 +287,6 @@ class cparser:
 
     def getBlock(self):
         statement = self.getStatement()
-        #self.match(types.SEMI)
         if (self.statementPending()):
             statement2 = self.getBlock()
             return helper.cons(types.STATEMENT,statement,statement2)
@@ -364,7 +307,7 @@ class cparser:
             return helper.cons(types.JOIN,None,None)
 
     def getArrayItems(self):
-        a = self.getExpression(None)
+        a = self.getExpression()
         if (self.check(types.COMMA)):
             self.advance()
             b = self.getArrayItems()
@@ -395,8 +338,6 @@ class cparser:
             return self.match(types.TIMES)
         elif(self.check(types.MOD)):
             return self.match(types.MOD)
-        #elif(self.check(types.ASSIGN)):
-        #    return self.match(types.ASSIGN)
 
     def getComparison(self):
         if(self.check(types.GREATERTHAN)):
@@ -475,9 +416,3 @@ class cparser:
 
     def minusPending(self):
         return self.check(types.MINUS)
-
-
-
-
-
-

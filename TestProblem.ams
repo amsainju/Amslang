@@ -1,37 +1,343 @@
-var y = 3;
-define test(x){
-	y = 5;
+define car(list){
+	list.car;
 }
-##define node(x,y,z){
-	var a = x+y;
-	define helper(m,n){
-		m*n;
+
+define cdr(list){
+	list.cdr;
+}
+
+define cons(car ,cdr){
+		this;
+	}
+
+define front_ptr(queue){
+	queue.car;
+}
+
+define rear_ptr(queue){
+	queue.cdr;
+}
+
+
+define set_front_ptr(queue, item){
+	queue.car = item;
+	queue;
+}
+
+define set_rear_ptr(queue,item){
+	queue.cdr = item;
+	queue;
+}
+
+
+define empty_queue(queue){
+	if(front_ptr(queue) == "None"){
+		1;
+	}
+	else{
+		0;
+	}
+}
+
+define set_car(list,time){
+	list.car = time;
+}
+
+define set_cdr(list,time){
+	list.cdr = time;
+}
+
+define make_queue(){
+	cons("None","None");
+}
+
+
+define front_queue(queue){
+	if(empty_queue(queue) == 1){
+		println("Error: FRONT called with an empty queue");
+	}
+	else{
+		car(front_ptr(queue));
+	}
+}
+
+define insert_queue(queue,item){
+	var new_pair = cons(item,"None");
+	if(empty_queue(queue) == 1){
+		set_front_ptr(queue,new_pair);
+		set_rear_ptr(queue,new_pair);
+		queue;
+	}
+	else{
+		set_cdr(rear_ptr(queue), new_pair);
+		set_rear_ptr(queue,new_pair);
+		queue;
+	}
+}
+
+define delete_queue(queue){
+	if(empty_queue(queue) == 1){
+		println("DELETE called with an empty queue");
+	}
+	else{
+		set_front_ptr(queue,cdr(front_ptr(queue)));
+		queue;
+	}
+}
+
+# end of queue
+
+#start of wire
+
+define make_wire(){
+	var signal = 0;
+	var endpoints = "None";
+	define set(v){
+		if (signal != v){
+			signal = v;
+			run_all(endpoints);
+		}
+	}
+	define add(f){
+		endpoints = cons(f,endpoints);
+		f();
 	}
 	this;
 }
 
-var test = node(3,4,5);
-println(test.x, " ", test.y, " ",test.z," ",test.a);
-var func = test.helper;
-println(func(3,4));##
-define make_list(first,rest){
-		this;
-	}
-define cons(a b){
-	 
+define get_signal(wire){
+	wire.signal;
 }
 
-define make_wire(){
-	var signal = 0;
-	var end_points = make_list("None","None");
-	define set(v){
-		if(v!=signal){
-			signal = v;
-			run_All(end_points);
+define set_signal(wire,newval){
+	var set = wire.set;
+	set(newval);
+}
+
+define add_action(wire,action_propagate){
+	var add = wire.add;
+	add(action_propagate);
+}
+
+define run_all(items){
+	if(items == "None"){
+		println("Done");
+	}
+	else{
+		var func = car(items);
+		func();
+		run_all(cdr(items));
+	}
+}
+
+define make_time_segment(time,queue){
+	cons(time,queue);
+}
+
+define segment_time(s){
+	car(s);
+}
+
+define segment_queue(s){
+	cdr(s);
+}
+
+define make_agenda(){
+	cons(0,"None");
+}
+
+define current_time(agenda){
+	car(agenda);
+}
+
+define set_current_time(agenda,time){
+	set_car(agenda,time);
+}
+
+define segments(agenda){
+	cdr(agenda);
+}
+
+define set_segments(agenda,segments){
+	set_cdr(agenda,segments);
+}
+
+define first_segment(agenda){
+ car(segments(agenda));
+ }
+
+
+define rest_segments(agenda){
+	cdr(segments(agenda));
+}
+
+define empty_agenda(agenda){
+	if(segments(agenda) == "None"){
+		1;
+	}
+	else{
+		0;
+	}
+}
+
+define add_to_agenda(time,action,agenda){
+	define belong_before(segments){
+		if(segments == "None" or time < segment_time(car(segments))){
+			1;
+		}
+		else{
+			0;
 		}
 	}
-	define add(f){
-
+	define make_new_time_segment(time,action){
+		var q = make_queue();
+		insert_queue(q, action);
+		make_time_segment(time,q);
 	}
 
+	define add_to_segments(segments){
+		if(segment_time(car(segments)) == time){
+			insert_queue(segment_queue(car(segments)), action);
+		}
+		else{
+			var rest = cdr(segments);
+			if(belong_before(rest) == 1){
+				set_cdr(segments, cons(make_new_time_segment(time,action),cdr(segments)));
+			}
+			else{
+				add_to_segments(rest);
+			}
+		}
+	}
+
+	var seg = segments(agenda);
+	if (belong_before(seg) == 1){
+		set_segments(agenda,cons(make_new_time_segment(time,action),seg));
+	}
+	else{
+		add_to_segments(seg);
+	}
 }
+
+define remove_first_agenda_item(agenda){
+	var q = segment_queue(first_segment(agenda));
+	delete_queue(q);
+	if (empty_queue(q) == 1){
+		set_segments(agenda,rest_segments(agenda));
+	}
+}
+
+define first_agenda_item(agenda){
+	if(empty_agenda(agenda)== 1){
+		println("EMPTYAGENDA");
+	}
+	else{
+		var first_seg = first_segment(agenda);
+		set_current_time(agenda,segment_time(first_seg));
+		front_queue(segment_queue(first_seg));
+	}
+}
+
+define after_delay(delay, action){
+	add_to_agenda(delay+current_time(the_agenda), action, the_agenda);
+	}
+
+define propagate(){
+	if(empty_agenda(the_agenda) == 1){
+		println("DONE");
+	}
+	else{
+		var first_item = first_agenda_item(the_agenda);
+		first_item();
+		remove_first_agenda_item(the_agenda);
+		propagate();
+	}
+}
+
+define and_gate(in1,in2,out){
+	define action(){
+		var inv1 = in1.signal;
+		var inv2 = in2.signal;
+		if (inv1 == 1 and inv2 ==1){
+			var newval = 1;
+		}
+		else {
+			var newval = 0;
+		}
+		after_delay(and_delay,lambda(){var set = out.set; set(newval);});
+	}
+	var in1add = in1.add;
+	in1add(action);
+	var in2add = in2.add;
+	in2add(action);
+}
+
+define or_gate(in1,in2,out){
+	define action(){
+		var inv1 = in1.signal;
+		var inv2 = in2.signal;
+		if (inv1 == 0 and inv2 ==0){
+			var newval = 0;
+		}
+		else {
+			var newval = 1;
+		}
+		after_delay(or_delay,lambda(){var set = out.set; set(newval);});
+	}
+	var in1add = in1.add;
+	in1add(action);
+	var in2add = in2.add;
+	in2add(action);
+}
+
+define inverter(in,out){
+	define action(){
+		var inv = in.signal;
+		if (inv == 1){
+			var newval = 0;
+		}
+		else {
+			var newval = 1;
+		}
+		after_delay(inverter_delay,lambda(){var set = out.set; set(newval);});
+	}
+	var inadd = in.add;
+	inadd(action);
+}
+
+
+define half_adder(a,b,s,c){
+	var d = make_wire();
+	var e = make_wire();
+	or_gate(a,b,d);
+	and_gate(a,b,c);
+	inverter(c,e);
+	and_gate(d,e,s);
+}
+
+define full_adder(a,b,c_in,sum,c_out){
+	var s = make_wire();
+	var c1 = make_wire();
+	var c2 = make_wire();
+	half_adder(b,c_in,s,c1);
+	half_adder(a,s,sum,c2);
+	or_gate(c1,c2,c_out);
+}
+
+var the_agenda = make_agenda();
+var and_delay = 5;
+var or_delay = 3;
+var inverter_delay = 1;
+var in0 = make_wire();
+var in1 = make_wire();
+var c0 = make_wire();
+var sum = make_wire();
+var c_out = make_wire();
+
+full_adder(in0,in1,c0,sum,c_out);
+var setin0 = in0.set;
+setin0(1);
+var setin1 = in1.set;
+setin1(1);
+propagate();
+println("c-out.signal = ",c_out.signal);

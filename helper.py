@@ -26,10 +26,14 @@ def lookup(ide,env):
 	vals = env.right.left
 	while (env != None):
 		while (ids != None):
-			if (ide.getLexval() == ids.left.getLexval()):
+			if(ids.left == None):
+				ids = ids.right
+				vals = vals.right
+			elif (ide.getLexval() == ids.left.getLexval()):
 				return vals.left
-			ids = ids.right
-			vals = vals.right
+			else:
+				ids = ids.right
+				vals = vals.right
 			if (ids == None and env.right.right.left != None):                    # checking in outer scope
 				env = env.right.right.left
 				ids = env.left
@@ -59,11 +63,15 @@ def updateEnv(ide,val,env):
 	vals = env.right.left
 	while (env != None):
 		while (ids != None):
-			if (ide.getLexval() == ids.left.getLexval()):
+			if(ids.left == None):
+				ids = ids.right
+				vals = vals.right
+			elif (ide.getLexval() == ids.left.getLexval()):
 				vals.left = val;
 				return vals.left
-			ids = ids.right
-			vals = vals.right
+			else:
+				ids = ids.right
+				vals = vals.right
 			if (ids == None and env.right.right.left != None):                    # checking in outer scope
 				env = env.right.right.left
 				ids = env.left
@@ -171,11 +179,15 @@ def evalnotequalto(pt,env):
 
 def evalor(pt,env):
 	a = eval(pt.left,env)
+	if(a.getLextype() == "INTEGER" and a.getLexval()==True):
+		return lexer.lexeme(types.INTEGER,a.getLexval())
 	b = eval(pt.right,env)
 	return lexer.lexeme(types.INTEGER,a.getLexval() or b.getLexval())
 
 def evaland(pt,env):
 	a = eval(pt.left,env)
+	if(a.getLextype() == "INTEGER" and a.getLexval()==False):
+		return lexer.lexeme(types.INTEGER,a.getLexval())
 	b = eval(pt.right,env)
 	return lexer.lexeme(types.INTEGER,a.getLexval() and b.getLexval())
 
@@ -280,6 +292,9 @@ def evalargumentList(args,params,env):
 			a.right = env
 		else:
 			a = eval(args.left,env)
+	elif(args.left == None and params.left == None):
+		a = None
+		b = None
 	if(args.left == None and params.left!= None):
 		showerror("Error: Too few Arguments to the function..")
 	elif(args.right != None and params.right== None):

@@ -12,13 +12,8 @@ def main():
 		oparser = parser.cparser(source)
 		parsetree = oparser.parser()
 		globalenv = helper.createEnv();
-		#print(parsetree.getLextype())
-		#print(parsetree.right.left.getLextype())
-		#print(parsetree.left.getLextype())
 		helper.eval(parsetree,globalenv)
-		#helper.lookupENV(globalenv)
-		#print(globalenv.left.getLextype())
 	else:
-		print("Please provide the file name.\nSyntax : $scanner filename")
+		print("Please provide the file name.\nSyntax : $./ams filename")
 
 main()

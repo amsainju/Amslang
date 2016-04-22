@@ -1,0 +1,28 @@
+Author: Arpan Man Sainju
+email: asainju@crimson.ua.edu
+Course: CS503
+
+one-bit full adder Manual:
+
+Input Wires: in0, in1
+iuput carry wire: c0
+carry Wire: c_out
+sum Wire: sum
+
+To change the signal of the input wire0 (in0):
+var setin0 = in0.set;
+setin0(value);        #provide value [0,1]
+
+To change the signal of the input wire1 (in1):
+var setin1 = in1.set;
+setin1(value);        #provide value [0,1]
+
+To change the signal of the input carry wire (c0):
+var setc0 = c0.set;
+setc0(value);        #provide value [0,1]
+
+To get the resulting signal of carry wire(c_out):
+var coutSignal = c_out.signal;
+
+To get the resulting signal of sum wire(sum):
+var sumSignal = sum.signal;

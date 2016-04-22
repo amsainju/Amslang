@@ -151,12 +151,12 @@ define searchinDictionary(key,tree){
 	}
 }
 
-var a = insert(10,"Ram","None");
- a = insert(20,"Shyam",a);
- a = insert(30,"Hari",a);
- a = insert(40,"Mohan",a);
- a = insert(50,"Gita",a);
- a = insert(25,"Sita",a);
+var a = insert(10,"Chichilkote","None");
+ a = insert(20,"Kalij",a);
+ a = insert(30,"Tiutiu",a);
+ a = insert(40,"Dhafe",a);
+ a = insert(50,"Amoga",a);
+ a = insert(25,"Bulbul",a);
 
 #preOrder(a);
 searchinDictionary(10,a);

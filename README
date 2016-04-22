@@ -1,0 +1,263 @@
+Author: Arpan Man Sainju
+email: asainju@crimson.ua.edu
+Course: CS503
+Host Programming Language : python3
+
+1. Using the Interpreter:
+
+	username@pcname:~/path$./ams filename
+
+2. Identifiers:
+	Identifiers are the sequence of characters used for naming variable and functions.
+	Rules:
+	a. It should start with an alphabet. 
+	b. It can cotains underscore '_'
+	c. No other special characters are allowed.
+
+3. Keywords:
+	These are the list of keywords:
+		a. DEFINE
+		b. LAMBDA
+		c. ELSE
+		d. IF
+		e. WHILE
+		f. AND
+		g. OR
+		h. VAR
+		i. APPEND
+		j. PRINT
+		k. PRINTLN
+
+4. Data Type:
+	Only integers and strings are allowed. 
+	Strings are denoted by a group of character enclosed by quotation marks.
+	eg: "Hello World!"
+
+5. Statement:
+	Statement ca be :
+		a. varaiable defination
+		b. expression
+		c. while statement
+		d. function defination
+	variable defination and expression statement should end with a semi-colon ';'.
+
+6. Varaible Decleration:
+	Keyword 'Var' specifies a new variable is being declared.
+	Syntax: var identifier = value;
+	Example:
+		var x = 5;
+		var y = "Hello World";
+
+7. Arrays
+	Keyword var is also used to declare and define arrays:
+	Syntax: var identifier = [optArrayitems];
+	optArrayitems can be null. ie. empty array.
+	Arrayitems are seperated using comma. 
+	Example:
+	var emptyArray = [];
+	var array = [1,2,3,4];
+
+	Accessing the element of array: 
+	array[0] gives value stored at 0th index. i.e. 1
+	array[0] = 10+5; the value stored in a given index can be updated. 
+
+	appending new element to the array:
+	array.append(6);
+	the arrat now becomes:
+	[15,2,3,4,6]
+
+8. Expression:
+	Expression can be considered as primary or chain of primaries with operators. 
+	For example,
+	x = 10+5;
+	y = x == 4 or z >=5;
+	x;
+	"Hello World";
+	z = (x*t)-3;
+	lambda(x){x*x;};
+	It ca be a function call.
+	function();
+
+9. While Statement
+	While statement is a loop statement with an exit test at the begining of the loop.
+	Syntax: while(testExpression)
+			block
+	Example:
+		var x = 0;
+		while (x < 10){
+			println(x);
+			x = x+1;	-> incrementor
+		} 
+		It will print 0 to 9.
+
+10. Function:
+	We write a function defination to specify what a function actually does.
+	A function defination starts with the keyword define followed by Identifier and
+	optional parameter list. 
+	The block contains the stamtents that the function will carry out when called.
+	Syntax: define identifier(parameter-list)
+			block
+
+	Example:
+		define square(x){
+			x*x;
+		}
+		function that return the square of the number passed into it. 
+		Function call:
+		square(3); -> will return 9.
+
+11. Anonymous fuction:
+	Anonymous fuction are function with no name. 
+	they begin with the keyword lambda. 
+	Syntax: 
+	defination:
+		lambda(parameter-list)block;
+		Example:
+			lambda(x){x*x;};
+
+	Call:
+		lambda(parameter-list)block:(argument-list);
+		Example:
+		lambda(x){x*x;}:(4); -> gives 16
+
+	Note: parameter-list and argument-list can be empty. 
+
+12. Conditionals:
+	You can use the if statement to conditionally execute part of 
+	your program, based on the truth value of a given expression. 
+	Syntax: 
+		if (test)
+			block
+	Example:
+		if (x==2){
+			println("x is equal to 2");
+		}
+
+	An else case can also be provided if the if test fails. 
+	Syntax: 
+		if (test)
+			block
+		else 
+			block
+	Example:
+		if (x==2){
+			println("x is ,",x);
+		}
+		else{
+			println("x is not equal to 2");
+		}
+
+
+	Also, we can use series of if statements to test for multiple conditions
+	Syntax:
+		if (test)
+			block
+		else if (test2)
+			block
+		else if (test3)
+			block
+		.
+		.
+		.
+		else
+			block
+	Example:
+		if(a>10 or b>20){
+			println(a," is greater than 10 and ",b, " is greater than 20");
+		}
+		else if(c>20 and b==15){
+			println(c," is greater than 20 and ", b, " is equal to 15");
+		}
+		else if(d==25 and c==a+b){
+			println(d, " is equal to 25 and ",c," is equla to ",a+b);	
+		}
+		else{
+			println("a = ",a);
+			println("b = ",b);
+			println("c = ",c);
+			println("d = ",d);
+		}
+
+13. List of Opetators:
+	a. Plus (+) : binary operator takes 2 number and results the sum of them.
+		Syntax: num1 + num2
+		Example: 
+			2+3; -> gives 5
+	b. Minus (-) : binary operator takes 2 number and results the differnce of them.
+		Syntax: num1 - num2
+		Example: 
+			3-2; -> gives 1
+	c. Times (*) : binary operator takes 2 number and results the multiplication of them.
+		Syntax: num1 * num2
+		Example: 
+			3*2; -> gives 6
+	d. Divide (/) : binary operator takes 2 number and results the quotient after dividing num1 by num2.
+		Syntax: num1 * num2
+		Example: 
+			8/2; -> gives 4
+	e. Times (*) : binary operator takes 2 number and results the multiplication of them.
+		Syntax: num1 * num2
+		Example: 
+			3*2; -> gives 6
+	f. MOD (%) : binary operator takes 2 number and results the remainder after dividing num1 by num2.
+		Syntax: num1 % num2
+		Example: 
+			40%6; -> gives 4
+	g. Assign (=) : assigns a value to the identifier.
+		Syntax: identifier = value;
+		Example: 
+			x = 10-3; x is assigned value 7.
+	h. GreaterThan (>) : checks if a num1 is greater than num2. if yes results true else false.
+		Syntax: num1 > num2
+		Example: 
+			3>2; -> gives True
+	i. GreaterThanEqualto (>=) : checks if a num1 is greater than or equal to num2. if yes results true else false.
+		Syntax: num1 >= num2
+		Example: 
+			3>=2; -> gives True
+	j. LessThan (<) : checks if a num1 is less than num2. if yes results true else false.
+		Syntax: num1 < num2
+		Example: 
+			3<2; -> gives False
+	k. LessThanEqualto (<=) : checks if a num1 is Less than or equal to num2. if yes results true else false.
+		Syntax: num1 <= num2
+		Example: 
+			3<=2; -> gives False
+	l. Equalto (==) : checks if a num1 is  equal to num2. if yes results true else false.
+		Syntax: num1 == num2
+		Example: 
+			3==2; -> gives False
+	m. Equalto (!=) : checks if a num1 is not equal to num2. if yes results true else false.
+		Syntax: num1 != num2
+		Example: 
+			3!=2; -> gives True
+	o. OR (or) : It is one of the Logical operator that test the truth value of a pair of operands. 
+		The logical conjuction operator 'or' test if at least one of two expression is true.
+		Syntax: (comparisonExpression1) or (comparisionExpression2)
+		Example: 
+			(x==5) or (y==10)
+	p. AND (and) : It is one of the Logical operator that test the truth value of a pair of operands. 
+		The logical conjuction operator 'and' test if both expressions are true.
+		Syntax: (comparisonExpression1) and (comparisionExpression2)
+		Example: 
+			(x==5) and (y==10)
+
+14. Comments:
+
+	a. Single line comment (#):
+		Single line comment begins with #.
+
+	b. Multi line comment (## ...##):
+		Multi line comment begins with ## and end with ##.
+		Any text between both the starting double pound and ending double pound is ignored.
+
+
+
+
+
+
+
+
+
+
+

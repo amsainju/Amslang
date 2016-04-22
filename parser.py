@@ -1,6 +1,6 @@
 #Author: Arpan Man Sainju
-#Date: 
-#Description: 
+#Date: 03/10/2016
+#Description: contains class cparser for parsing the lexemes 
 import lexer 
 import sys
 import helper

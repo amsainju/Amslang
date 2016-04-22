@@ -1,3 +1,6 @@
+#Author: Arpan Man Sainju
+#Date: 04/22/2016
+#Description: contains modules for evaluation and Environment
 import lexer
 import sys
 from type import types
@@ -53,10 +56,6 @@ def evalDispatchAssign(tree,env):
 	obj = eval(idname,env)
 	return updateEnv(tree.right.left, eval(tree.right.right,env),obj)
 
-	# def evalDispatch(pt,env):
-	# obj = eval(pt.right.left,env)
-	# x = eval(pt.right.right,obj)
-	# return x
 
 def updateEnv(ide,val,env):
 	ids = env.left
@@ -459,73 +458,5 @@ def eval(pt,env):
 			return eval(pt,env)
 		else:
 			return returnval
-
-
-# def lookupENV(env):   #for testing
-# 	print("Listing ENVIRONMENT...")
-# 	ids = env.left
-# 	vals = env.right.left
-# 	#outerenv = env.right.right.left
-# 	while (env != None):
-# 		while (ids != None):
-# 			if(vals.left != None and vals.left.getLextype()=="ARRAY"):
-# 				print(ids.left.getLexval(), "= ",end="")
-# 				print(vals.left.lex_val,sep=',')
-# 			elif (vals.left != None and vals.left.getLextype()=="CLOSURE"):   #preety printing function
-# 				print(ids.left.getLexval()+"(",end="")
-# 				parameters = vals.left.right.left
-# 				while(parameters!=None):
-# 					if(parameters.right!=None):
-# 						print(parameters.left.getLexval()+",",end="")
-# 					else:
-# 						print(parameters.left.getLexval()+")")
-# 					parameters=parameters.right
-# 				block = vals.left.right.right.left #need to print the intendlevel keep track of indentation level so if another block is enocunter tab is printed
-# 				block.indent = block.indent+4
-# 				print("{")
-# 				preetyprint(block)
-# 				print("}")
-
-# 				block.indent = block.indent-4
-# 			else:
-# 				print (ids.left.getLexval(), "=", vals.left.getLexval())  #need to change if type changes like arrray
-# 			ids = ids.right
-# 			vals = vals.right
-# 			if (ids == None and env.right.right.left != None):                    # checking in outer scope
-# 				env = env.right.right.left
-# 				ids = env.left
-# 				vals = env.right.left
-# 		env = env.right.right.left   #outer env
-# 	print ("ENVIRONMENT ends...")
-
-
-
-# def preetyprint(tree):
-# 	if(tree == None):
-# 		return
-# 	elif(tree.getLextype()=="STATEMENT"):
-# 		printindent(tree.indent)
-# 		preetyprint(tree.left)
-# 		print(";")
-# 		preetyprint(tree.right)
-# 	elif(tree.getLextype()=="TIMES"):
-# 		preetyprint(tree.left)
-# 		print("*",end='')
-# 		preetyprint(tree.left.left)
-# 	elif(tree.getLextype()=="ID"):
-# 		print(tree.getLexval(),end='')
-
-# def printindent(tempindent):
-# 	#tempindent = indent;
-# 	while(tempindent!=0):
-# 		print(" ",end='')
-# 		tempindent=tempindent-1
-
-
-
-
-
-
-
 
 

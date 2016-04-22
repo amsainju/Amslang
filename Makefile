@@ -25,4 +25,56 @@ cat-error3:
 run-error3:
 	./ams error3.ams
 
+cat-arrays:
+	cat arrays.ams
+
+run-arrays:
+	./ams arrays.ams
+
+cat-conditionals:
+	cat conditionals.ams
+
+run-conditionals:
+	./ams conditionals.ams
+
+cat-recursion:
+	cat recursion.ams
+
+run-recursion:
+	./ams recursion.ams
+
+cat-iteration:
+	cat iteration.ams
+
+run-iteration:
+	./ams iteration.ams
+
+cat-functions:
+	cat functions.ams
+
+run-functions:
+	./ams functions.ams
+
+cat-dictionary:
+	cat dictionary.ams
+
+run-dictionary:
+	./ams dictionary.ams
+
+cat-problem:
+	cat TestProblem.ams
+
+run-problem:
+	./ams TestProblem.ams
+
+clean:
+	rm  -rf __pycache__/
+
+
+cat-grad:
+	cat delayevaluation.ams
+
+run-grad:
+	./ams delayevaluation.ams
+
 

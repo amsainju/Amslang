@@ -2,7 +2,6 @@
 #Date: 02/17/2016
 #Description: class types contains all the token possible in the program code. 
 class types:
-	#NEWLINE = "NEWLINE"
 	END_OF_FILE = "END_OF_FILE"
 	OPAREN = "OPAREN"
 	CPAREN = 'CPAREN'

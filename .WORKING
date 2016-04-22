@@ -1,0 +1,8 @@
+/home/amsainju/cs503/Environment/Amslang
+Fri Apr 22 17:54:41 CDT 2016
+ams			error1.ams     lexer.py       TestProblem.ams
+arrays.ams		error2.ams     main.py	      TestProblemREADME
+asainju@crimson.ua.edu	error3.ams     Makefile       type.py
+conditionals.ams	functions.ams  parser.py      WORKING
+delayevaluation.ams	helper.py      README
+dictionary.ams		iteration.ams  recursion.ams

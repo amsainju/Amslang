@@ -11,6 +11,7 @@ define factorial(n){
 
 var i = 0;
 var level = 5;
+println("Pascal Triangle: ");
 while(i<level){
 	var c = 0;
 	while(c<level-(i+1)){

@@ -1,11 +1,11 @@
 default: 
-	./recognizer test1.txt
+	./ams test1.ams
 
 run: 
-	./recognizer test1.txt
-	./recognizer test2.txt
-	./recognizer test3.txt
-	./recognizer test4.txt
+	./ams test1.ams
+	./ams test2.ams
+	./ams test3.ams
+	./ams test4.ams
 
 cat-error1:
 	cat error1.ams
@@ -61,20 +61,20 @@ cat-dictionary:
 run-dictionary:
 	./ams dictionary.ams
 
-cat-problem:
-	cat TestProblem.ams
+cat-adder:
+	cat adder.ams
 
-run-problem:
-	./ams TestProblem.ams
+run-adder:
+	./ams adder.ams
 
 clean:
 	rm  -rf __pycache__/
 
 
-cat-grad:
+cat-delayevaluation:
 	cat delayevaluation.ams
 
-run-grad:
+run-delayevaluation:
 	./ams delayevaluation.ams
 
 

@@ -1,11 +1,11 @@
 Author: Arpan Man Sainju
 email: asainju@crimson.ua.edu
-Course: CS503
 Host Programming Language : python3
 
 1. Using the Interpreter:
 
 	username@pcname:~/path$./ams filename
+	filename: file with source code.
 
 2. Identifiers:
 	Identifiers are the sequence of characters used for naming variable and functions.
